@@ -2,6 +2,7 @@ import requests
 import json
 import os
 import sys
+
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem.rdMolDescriptors import CalcMolFormula
@@ -255,7 +256,7 @@ def get_full_mgf_string(all_json_list):
 
 def get_full_msp_string(all_json_list):
     msp_string_list = []
-
+    
     for spectrum in all_json_list:
         msp_string_list.append(json_to_msp(spectrum))
 
@@ -309,7 +310,6 @@ def json_object_to_string(json_spectrum):
 #output libraries into MSDial usable msp
 def json_to_msp(json_spectrum):
     print(json_spectrum["SpectrumID"])
-    
     if int(json_spectrum["Library_Class"]) > 3:
         print("CHALLENGE OR UNKNOWN CLASS, SKIPPING: " + json_spectrum["Library_Class"] + "\t" + json_spectrum["SpectrumID"])
         return ""
@@ -317,32 +317,30 @@ def json_to_msp(json_spectrum):
     mgf_string = "NAME: " + json_spectrum["Compound_Name"] + "\n"
     mgf_string += "PRECURSORMZ: " + json_spectrum["Precursor_MZ"] + "\n"
     mgf_string += "PRECURSORTYPE: " + json_spectrum["Adduct"] + "\n"
-    mgf_string += "FORMULA: "
-    mgf_string += "Ontology: "
-    mgf_string += "INCHIKEY: " + json_spectrum["INCHI"] + "\n"
+    mgf_string += "FORMULA: \n"
+    mgf_string += "Ontology: \n"
+    mgf_string += "INCHIKEY: " + json_spectrum["InChIKey_inchi"] + "\n"
     mgf_string += "SMILES: " + json_spectrum["Smiles"] + "\n"
     mgf_string += "RETENTIONTIME: "
-    mgf_string += "CCS: "
+    mgf_string += "CCS: \n"
     mgf_string += "IONMODE: " + json_spectrum["Ion_Mode"] + "\n"
     mgf_string += "INSTRUMENTTYPE: "  + json_spectrum["Ion_Source"] + "-" + json_spectrum["Instrument"] + "\n"
     mgf_string += "INSTRUMENT: " + json_spectrum["Instrument"] + "\n"
-    mgf_string += "COLLISIONENERGY: "
+    mgf_string += "COLLISIONENERGY: \n"
     mgf_string += "Comment: DB#=" + json_spectrum["SpectrumID"] + "; origin=" + "GNPS\n"
-    mgf_string += "Num Peaks: "
-
-    mgf_string += "INCHIAUX=" + json_spectrum["INCHI_AUX"] + "\n"
-    
+        
     peaks_json = json_spectrum["peaks_json"]
-    
+
     if len(peaks_json) < 1000000:
         peaks_object = json.loads(peaks_json)
+        mgf_string += "Num Peaks: " + str(len(peaks_object)) +  "\n"
         for peak in peaks_object:
             if peak[1] > 0:
                 mgf_string += str(peak[0]) + "\t" + str(peak[1]) + "\n"
     else:
         print("SKIPPING: " + json_spectrum["SpectrumID"] + " " + str(len(peaks_json)))
     
-    mgf_string += "END IONS\n\n"
+    mgf_string += "\n"
     
     return mgf_string
 
