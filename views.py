@@ -207,5 +207,9 @@ def gnpslibraryfornpatlastsv():
 def mgf_download(library):
     return send_from_directory("/output", "{}.mgf".format(library))
 
+@app.route('/gnpslibrary/<library>.msp', methods=['GET'])
+def mgf_download(library):
+    return send_from_directory("/output", "{}.msp".format(library))
+
 npatlas_list = utils.load_NPAtlas("data/npatlas.json")
 mibig_list = utils.load_mibig("data/mibig.csv")
