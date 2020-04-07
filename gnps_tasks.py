@@ -34,7 +34,7 @@ def generate_gnps_data():
 
     # Getting spectrum peaks for each library spectrum
     encriched_gnps_libraries_with_peaks = utils.get_gnps_peaks(encriched_gnps_libraries)
-    with open("/output/gnpslibraries_enriched_all_with_peaks.json", "w") as output_file:
+    with open("/output/ALL_GNPS.json", "w") as output_file:
         output_file.write(json.dumps(encriched_gnps_libraries_with_peaks))
 
     print("MGF Library Export")
