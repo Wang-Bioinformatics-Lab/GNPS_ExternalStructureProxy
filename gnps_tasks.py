@@ -39,8 +39,9 @@ def generate_gnps_data():
 
     print("MGF Library Export")
     # Generating the MGF versions of it
-    with open("/output/ALL_GNPS.mgf", "w") as output_file:
-        output_file.write(utils.get_full_mgf_string(encriched_gnps_libraries_with_peaks))
+    mgf_string = utils.get_full_mgf_string(encriched_gnps_libraries_with_peaks)
+    with open("/output/ALL_GNPS.mgf", "wb") as output_file:
+        output_file.write(mgf_string.encode("ascii", "ignore"))
 
     print("MSP Library Export")
     # TODO: Generating the MSP versions of it
@@ -48,7 +49,7 @@ def generate_gnps_data():
     with open("ALL_GNPS.msp", "wb") as output_file:
         output_file.write(msp_string.encode("ascii", "ignore"))
 
-    print("Indivi Library Export")
+    print("Individual Library Export")
     utils.output_all_gnps_individual_libraries(encriched_gnps_libraries_with_peaks, "/output/")
 
 

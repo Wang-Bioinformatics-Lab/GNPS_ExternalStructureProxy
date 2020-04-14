@@ -8,44 +8,10 @@ from rdkit import Chem
 from rdkit.Chem.rdMolDescriptors import CalcMolFormula
 
 ## Caching Results for a specific amount of time
-import requests_cache
-requests_cache.install_cache('requests_cache', expire_after=86400)
+#import requests_cache
+#requests_cache.install_cache('requests_cache', expire_after=86400)
 
-LIBRARY_NAMES = ["GNPS-LIBRARY", 
-    "GNPS-SELLECKCHEM-FDA-PART1",
-    "GNPS-SELLECKCHEM-FDA-PART2",
-    "GNPS-PRESTWICKPHYTOCHEM", 
-    "GNPS-NIH-CLINICALCOLLECTION1", 
-    "GNPS-NIH-CLINICALCOLLECTION2", 
-    "GNPS-NIH-NATURALPRODUCTSLIBRARY", 
-    "GNPS-NIH-NATURALPRODUCTSLIBRARY_ROUND2_POSITIVE", 
-    "GNPS-NIH-NATURALPRODUCTSLIBRARY_ROUND2_NEGATIVE", 
-    "GNPS-NIH-SMALLMOLECULEPHARMACOLOGICALLYACTIVE", 
-    "GNPS-FAULKNERLEGACY",
-    "GNPS-EMBL-MCF",
-    "GNPS-COLLECTIONS-PESTICIDES-POSITIVE",
-    "GNPS-COLLECTIONS-PESTICIDES-NEGATIVE",
-    "MMV_POSITIVE",
-    "MMV_NEGATIVE",
-    "LDB_POSITIVE", 
-    "LDB_NEGATIVE",
-    "GNPS-NIST14-MATCHES",
-    "GNPS-COLLECTIONS-MISC",
-    "GNPS-MSMLS",
-    "PSU-MSMLS",
-    "BILELIB19",
-    "DEREPLICATOR_IDENTIFIED_LIBRARY",
-    "PNNL-LIPIDS-POSITIVE",
-    "PNNL-LIPIDS-NEGATIVE",
-    "MIADB",
-    "MASSBANK", 
-    "MASSBANKEU", 
-    "MONA", 
-    "RESPECT", 
-    "HMDB", 
-    "CASMI",
-    "SUMNER"]
-
+LIBRARY_NAMES = list(pd.read_csv("library_names.tsv")["library"])
 
 def get_inchikey(smiles, inchi):
     inchikey_from_smiles = ""
@@ -233,19 +199,29 @@ def get_gnps_peaks(all_GNPS_list):
 
     return output_list
 
-# Utils for outputting GNPS libraries
+# Utils for outputting GNPS libraries and getting all the peaks, returns the list
 def output_all_gnps_individual_libraries(all_json_list, output_folder):
+    spectra_list_with_peaks = []
+
     for library in LIBRARY_NAMES:
         library_spectra_list = [spectrum for spectrum in all_json_list if spectrum["library_membership"] == library]
+        library_spectra_list_with_peaks = get_gnps_peaks(library_spectra_list)
+
         if len(library_spectra_list) > 0:
             with open(os.path.join(output_folder, "{}.mgf".format(library)), "wb") as output_file:
-                output_file.write(get_full_mgf_string(library_spectra_list).encode("ascii", "ignore"))
+                output_file.write(get_full_mgf_string(library_spectra_list_with_peaks).encode("ascii", "ignore"))
 
             with open(os.path.join(output_folder, "{}.msp".format(library)), "wb") as output_file:
-                output_file.write(get_full_msp_string(library_spectra_list).encode("ascii", "ignore"))
+                output_file.write(get_full_msp_string(library_spectra_list_with_peaks).encode("ascii", "ignore"))
 
             with open(os.path.join(output_folder, "{}.json".format(library)), "w") as output_file:
-                output_file.write(json.dumps(library_spectra_list, indent=4))
+                output_file.write(json.dumps(library_spectra_list_with_peaks, indent=4))
+
+        spectra_list_with_peaks += library_spectra_list_with_peaks
+
+    return spectra_list_with_peaks
+
+    
 
 def get_full_mgf_string(all_json_list):
     mgf_string_list = []
