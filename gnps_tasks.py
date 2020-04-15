@@ -48,7 +48,7 @@ def generate_gnps_data():
     print("MSP Library Export")
     # TODO: Generating the MSP versions of it
     msp_string = utils.get_full_msp_string(encriched_gnps_libraries_with_peaks)
-    with open("ALL_GNPS.msp", "wb") as output_file:
+    with open("/output/ALL_GNPS.msp", "wb") as output_file:
         output_file.write(msp_string.encode("ascii", "ignore"))
 
 
