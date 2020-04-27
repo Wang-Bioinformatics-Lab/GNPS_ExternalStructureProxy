@@ -9,6 +9,17 @@ def test_production():
     r.raise_for_status()
 
 
+def test_datasets():
+    url = f"https://{PRODUCTION_URL}/datasets/metabolights"
+    r = requests.get(url)
+    r.raise_for_status()
+
+    url = f"https://{PRODUCTION_URL}/datasets/metabolomicsworkbench"
+    r = requests.get(url)
+    r.raise_for_status()
+
+
+
 def test_gnps_library():
     url = f"https://{PRODUCTION_URL}/gnpslibraryjson"
     r = requests.get(url)
