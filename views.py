@@ -177,6 +177,28 @@ def prep_external(results_list, resource_name, resource_url):
 
     return external_links
 
+### Datasets Endpoints
+@app.route('/datasets/metabolights', methods=['GET'])
+def metabolights():
+    url = "https://massive.ucsd.edu/ProteoSAFe/datasets_json.jsp"
+    r = requests.get(url)
+    dataset_list = r.json()["datasets"]
+
+    filtered_datasets = [dataset for dataset in dataset_list if "MetaboLights" in dataset["title"]]
+
+    return json.dumps(filtered_datasets)
+
+@app.route('/datasets/metabolomicsworkbench', methods=['GET'])
+def metabolomicsworkbench():
+    url = "https://massive.ucsd.edu/ProteoSAFe/datasets_json.jsp"
+    r = requests.get(url)
+    dataset_list = r.json()["datasets"]
+
+    filtered_datasets = [dataset for dataset in dataset_list if "Metabolomics Workbench " in dataset["title"]]
+
+    return json.dumps(filtered_datasets)
+
+
 ### GNPS Spectral Library Delivery Endpoints that will be constantly updated
 
 #Making it easy to query for all of GNPS library spectra
