@@ -225,6 +225,32 @@ def gnpslibraryfornpatlasjson():
 def gnpslibraryfornpatlastsv():
     return send_from_directory("/output", "gnpslibraries_npatlas.tsv")
 
+
+# Download Page for Spectral Libraries
+@app.route('/gnpslibrary', methods=['GET'])
+def gnpslibrary():
+    LIBRARY_NAMES = list(pd.read_csv("library_names.tsv")["library"])
+
+    library_list = []
+    for library_name in LIBRARY_NAMES:
+        library_dict = {}
+        library_dict["libraryname"] = library_name
+        library_dict["mgflink"] = "/gnpslibrary/{}.mgf".format(library_name)
+        library_dict["msplink"] = "/gnpslibrary/{}.msp".format(library_name)
+        library_dict["jsonlink"] = "/gnpslibrary/{}.json".format(library_name)
+        library_list.append(library_dict)
+
+    library_name = "ALL_GNPS"
+    library_dict = {}
+    library_dict["libraryname"] = library_name
+    library_dict["mgflink"] = "/gnpslibrary/{}.mgf".format(library_name)
+    library_dict["msplink"] = "/gnpslibrary/{}.msp".format(library_name)
+    library_dict["jsonlink"] = "/gnpslibrary/{}.json".format(library_name)
+    library_list.append(library_dict)
+
+    return render_template('gnpslibrarylist.html', library_list=library_list)
+
+
 @app.route('/gnpslibrary/<library>.mgf', methods=['GET'])
 def mgf_download(library):
     return send_from_directory("/output", "{}.mgf".format(library))

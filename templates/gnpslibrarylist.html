@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GNPS - External</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+    <!-- A grey horizontal navbar that becomes vertical on small screens -->
+    <nav class="navbar navbar-expand-sm bg-light navbar-light">
+        <a class="navbar-brand" href="gnps.ucsd.edu">
+            <img src="/static/img/GNPS_logo.png" alt="Logo" style="width:120px;">
+        </a>
+
+
+    </nav>
+
+    <div id="app-4" class="container-fluid justify-content-center align-items-center">
+        <div class="row">
+            <div class="col-sm"></div>
+            <div class="col-sm text-center">
+                <h2>GNPS - Spectral Libraries</h2>
+            </div>
+            <div class="col-sm"></div>
+        </div>
+
+        <hr>
+
+        <div class="col-sm text-center">
+            <h2>GNPS Library List</h2>
+        </div>
+
+        <div style="">
+            <table class="table table-sm table-striped">
+                <thead>
+                  <tr>
+                    <th>
+                        GNPS Library
+                    </th>
+                    <th>
+                        MGF Download
+                    </th>
+                    <th>
+                        MSP Download
+                    </th>
+                    <th>
+                        JSON Download
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="library_dict in library_list">
+                        <td>{{library_dict.libraryname}}</td>
+                        <td>
+                            <download-linkout :url=library_dict.mgflink :libraryname=library_dict.libraryname></gnps-linkout>
+                        </td>
+                        <td>
+                            <download-linkout :url=library_dict.msplink :libraryname=library_dict.libraryname></gnps-linkout>
+                        </td>
+                        <td>
+                            <download-linkout :url=library_dict.jsonlink :libraryname=library_dict.libraryname></gnps-linkout>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+
+    Vue.component('download-linkout', {
+            props: ['libraryname', 'url'],
+            data: function() {
+                return {}
+            },
+            methods: {},
+            template: '<a :href=url> Download </a>'
+        })
+
+    var app4 = new Vue({
+        el: '#app-4',
+        methods: {},
+        data: {
+            library_list : ((library_list|tojson))
+        }
+    })
+    </script>
+
+</body>
+
+</html>
