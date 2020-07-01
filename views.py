@@ -72,6 +72,33 @@ def mibigproxy():
         url = "https://mibig.secondarymetabolites.org/repository/%s/index.html#r1c1" % BGCID
         return redirect(url)
 
+@app.route('/gnpsproxyimg', methods=['GET'])
+def gnpsproxyimg():
+    inchi = request.args.get('inchi', '')
+    inchikey = request.args.get('inchikey', '')
+    smiles = request.args.get('smiles', '')
+
+    found_spectrum_list = get_gnps(smiles, inchi, inchikey)
+
+    
+    if len(found_spectrum_list) == 0:
+        return send_file("./static/img/Solid_white.png")
+    else:
+        return send_file("./static/img/GNPS_logo.png")
+
+@app.route('/gnpsproxy', methods=['GET'])
+def gnpsproxy():
+    inchi = request.args.get('inchi', '')
+    inchikey = request.args.get('inchikey', '')
+    smiles = request.args.get('smiles', '')
+
+    found_spectrum_list = get_gnps(smiles, inchi, inchikey)
+
+    if len(found_spectrum_list) == 0:
+        return render_template("notfound.html")
+
+    return render_template('gnpsspectralist.html', spectrumlist_json=found_spectrum_list)
+
 def get_npatlas(smiles, inchi, inchikey):
     inchikey_from_smiles, inchikey_from_inchi = utils.get_inchikey(smiles, inchi)
     print(inchikey_from_smiles, inchikey_from_inchi)
@@ -99,29 +126,23 @@ def get_mibig(smiles, inchi, inchikey):
 
     return BGCID
 
+def get_gnps(smiles, inchi, inchikey):
+    inchikey_from_smiles, inchikey_from_inchi = utils.get_inchikey(smiles, inchi)
 
-# @app.route('/gnpsproxy', methods=['GET'])
-# def gnpsproxy():
-#     inchi = request.args.get('inchi', '')
-#     inchikey = request.args.get('inchikey', '')
-#     smiles = request.args.get('smiles', '')
+    acceptable_key = set([inchikey, inchikey_from_smiles, inchikey_from_inchi])
 
-#     inchikey_from_smiles, inchikey_from_inchi = get_inchikey(smiles, inchi)
+    found_spectrum_list = []
 
-#     acceptable_key = set([inchikey, inchikey_from_smiles, inchikey_from_inchi])
+    for gnps_spectrum in gnps_list:
+        if len(gnps_spectrum["InChIKey_smiles"]) > 2 and gnps_spectrum["InChIKey_smiles"] in acceptable_key:
+            found_spectrum_list.append(gnps_spectrum)
+        elif len(gnps_spectrum["InChIKey_inchi"]) > 2 and gnps_spectrum["InChIKey_inchi"] in acceptable_key:
+            found_spectrum_list.append(gnps_spectrum)
+    
+    return found_spectrum_list
 
-#     print(acceptable_key)
 
-#     found_spectrum_list = []
 
-#     for gnps_spectrum in gnps_listreturn json.dumps(:
-#         if len(gnps_spectrum["InChIKey_smiles"]) > 2 and gnps_spectrum["InChIKey_smiles"] in acceptable_key:
-#             found_spectrum_list.append(gnps_spectrum)
-#         elif len(gnps_spectrum["InChIKey_inchi"]) > 2 and gnps_spectrum["InChIKey_inchi"] in acceptable_key:
-#             found_spectrum_list.append(gnps_spectrum)
-
-#     return render_template('gnpsspectralist.html', spectrumlist_json=found_spectrum_list)
-#     #return json.dumps(found_spectrum_list)
 
 @app.route('/structureproxy', methods=['GET'])
 def structureproxy():
@@ -265,3 +286,5 @@ def json_download(library):
 
 npatlas_list = utils.load_NPAtlas("data/npatlas.json")
 mibig_list = utils.load_mibig("data/mibig.csv")
+gnps_list = utils.load_GNPS()
+gnps_list = utils.gnps_format_libraries(gnps_list)

@@ -108,6 +108,7 @@ def load_GNPS(library_names=LIBRARY_NAMES):
 
     return all_GNPS_list
 
+
     
 # Enriching GNPS Library data with structures and formulas
 def gnps_format_libraries(all_GNPS_list):
