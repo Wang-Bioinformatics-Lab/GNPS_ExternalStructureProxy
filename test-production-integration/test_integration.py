@@ -81,3 +81,7 @@ def test_redirects():
     url = f"https://{PRODUCTION_URL}/mibigproxy?smiles=C[C@H]1[C@@H](OC(C2=CSC([C@H](C(C)(OC(C3=CSC([C@H](C(C)(O)C)OC1=O)=N3)=O)C)OC(C)=O)=N2)=O)CCCC([37Cl])(Cl)C"
     r = requests.get(url)
     r.raise_for_status()
+
+    url = f"https://{PRODUCTION_URL}/gnpsproxy?smiles=C[C@H]1[C@@H](OC(C2=CSC([C@H](C(C)(OC(C3=CSC([C@H](C(C)(O)C)OC1=O)=N3)=O)C)OC(C)=O)=N2)=O)CCCC([37Cl])(Cl)C"
+    r = requests.get(url)
+    r.raise_for_status()
