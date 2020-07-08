@@ -5,6 +5,7 @@ services:
     build: .
     volumes:
       - ./output:/output:rw
+      - ./ftpproxy:/ftpproxy:rw
     ports:
       - "5010:5000"
     command: /app/run_server.sh
