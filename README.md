@@ -26,3 +26,13 @@ External Structure Proxy for GNPS. The goal of this software to enable GNPS to l
 
 1. List of Metabolights Imported Datasets - https://gnps-external.ucsd.edu/datasets/metabolights
 1. List of Metabolomics Workbench Imported Datasets - https://gnps-external.ucsd.edu/datasets/metabolomicsworkbench
+
+## GNPS-MassIVE Dataset FTP to HTTPS proxy
+
+This is accessible at 
+
+```
+/massiveftpproxy?ftppath=<massive path to file>
+```
+
+[Test Link](https://gnps-external.ucsd.edu/massiveftpproxy?ftppath=ftp://massive.ucsd.edu/MSV000085699/peak/S6.mgf)
