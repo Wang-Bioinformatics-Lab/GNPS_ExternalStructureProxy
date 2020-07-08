@@ -88,6 +88,6 @@ def test_redirects():
 
 
 def test_ftp_proxy():
-    url = f"https://{}/massiveftpproxy?ftppath=ftp://massive.ucsd.edu/MSV000085699/peak/S6.mgf".format(PRODUCTION_URL)
+    url = f"https://{PRODUCTION_URL}/massiveftpproxy?ftppath=ftp://massive.ucsd.edu/MSV000085699/peak/S6.mgf"
     r = requests.get(url)
     r.raise_for_status()
