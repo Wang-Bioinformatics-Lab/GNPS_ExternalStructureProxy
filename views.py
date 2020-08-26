@@ -41,7 +41,7 @@ def npatlasproxy():
         url = "https://www.npatlas.org/joomla/index.php/deposit"
         return redirect(url)
     else:
-        url = "https://www.npatlas.org/joomla/index.php/explore/compounds#npaid=%s" % NPAID
+        url = "https://www.npatlas.org/joomla/index.php/explore/compounds?npaid=%s" % NPAID
         return redirect(url)
 
 
