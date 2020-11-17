@@ -8,9 +8,9 @@ from rdkit import Chem
 from rdkit.Chem.rdMolDescriptors import CalcMolFormula
 
 ## Caching Results for a specific amount of time
-if os.path.isdir("/output"):
-    import requests_cache
-    requests_cache.install_cache('/output/requests_cache', expire_after=86400)
+# if os.path.isdir("/output"):
+#     import requests_cache
+#     requests_cache.install_cache('/output/requests_cache', expire_after=86400)
 
 LIBRARY_NAMES = list(pd.read_csv("library_names.tsv")["library"])
 
