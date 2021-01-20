@@ -248,10 +248,10 @@ def get_full_msp_string(all_json_list):
     return "\n".join(msp_string_list)
 
 def json_object_to_string(json_spectrum):
-    print(json_spectrum["SpectrumID"])
+    #print(json_spectrum["SpectrumID"])
     
     if int(json_spectrum["Library_Class"]) > 3:
-        print("CHALLENGE OR UNKNOWN CLASS, SKIPPING: " + json_spectrum["Library_Class"] + "\t" + json_spectrum["SpectrumID"])
+        #print("CHALLENGE OR UNKNOWN CLASS, SKIPPING: " + json_spectrum["Library_Class"] + "\t" + json_spectrum["SpectrumID"])
         return ""
     
     mgf_string = "BEGIN IONS\n"
@@ -285,8 +285,8 @@ def json_object_to_string(json_spectrum):
         for peak in peaks_object:
             if peak[1] > 0:
                 mgf_string += str(peak[0]) + "\t" + str(peak[1]) + "\n"
-    else:
-        print("SKIPPING: " + json_spectrum["SpectrumID"] + " " + str(len(peaks_json)))
+    # else:
+    #     print("SKIPPING: " + json_spectrum["SpectrumID"] + " " + str(len(peaks_json)))
     
     mgf_string += "END IONS\n\n"
     
@@ -294,9 +294,9 @@ def json_object_to_string(json_spectrum):
 
 #output libraries into MSDial usable msp
 def json_to_msp(json_spectrum):
-    print(json_spectrum["SpectrumID"])
+    #print(json_spectrum["SpectrumID"])
     if int(json_spectrum["Library_Class"]) > 3:
-        print("CHALLENGE OR UNKNOWN CLASS, SKIPPING: " + json_spectrum["Library_Class"] + "\t" + json_spectrum["SpectrumID"])
+        #print("CHALLENGE OR UNKNOWN CLASS, SKIPPING: " + json_spectrum["Library_Class"] + "\t" + json_spectrum["SpectrumID"])
         return ""
     
     mgf_string = "NAME: " + json_spectrum["Compound_Name"] + "\n"
@@ -322,8 +322,8 @@ def json_to_msp(json_spectrum):
         for peak in peaks_object:
             if peak[1] > 0:
                 mgf_string += str(peak[0]) + "\t" + str(peak[1]) + "\n"
-    else:
-        print("SKIPPING: " + json_spectrum["SpectrumID"] + " " + str(len(peaks_json)))
+    # else:
+    #     print("SKIPPING: " + json_spectrum["SpectrumID"] + " " + str(len(peaks_json)))
     
     mgf_string += "\n"
     

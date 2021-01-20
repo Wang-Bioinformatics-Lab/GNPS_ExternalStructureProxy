@@ -55,6 +55,6 @@ def generate_gnps_data():
 celery_instance.conf.beat_schedule = {
     "generate_gnps_data": {
         "task": "gnps_tasks.generate_gnps_data",
-        "schedule": 30.0
+        "schedule": 86400
     }
 }
