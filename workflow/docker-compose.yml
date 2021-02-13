@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  gnps-datasette:
+    image: datasetteproject/datasette
+    volumes:
+      - .:/mnt
+    ports:
+      - "6666:6666"
+    command: datasette -p 6666 -h 0.0.0.0 /mnt/database.db
+    networks:
+      - default
+
+networks:
+  nginx-net:
+    external:
+      name: nginx-net
