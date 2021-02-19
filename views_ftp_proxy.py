@@ -37,7 +37,9 @@ def proxy_massive_file():
         file_handle.close()
         os.remove(local_filename)
 
-    return app.response_class(
+    response = app.response_class(
         stream_and_remove_file(),
-        headers={'Content-Disposition': 'attachment', 'filename': secure_filename}
     )
+    response.headers.add('Content-Disposition', 'attachment', filename=secure_filename)
+
+    return response
