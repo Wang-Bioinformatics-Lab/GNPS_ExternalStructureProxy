@@ -29,7 +29,7 @@ def proxy_massive_file():
     ftp.retrbinary('RETR '+ ftppath, open(local_filename, 'wb').write)
     ftp.quit()
 
-    file_handle = open(local_filename, 'r')
+    file_handle = open(local_filename, 'rb')
 
     # This *replaces* the `remove_file` + @after_this_request code above
     def stream_and_remove_file():
