@@ -24,5 +24,5 @@ app.config.from_object(__name__)
 cache = Cache(app, config={
     'CACHE_TYPE': "RedisCache",
     'CACHE_REDIS_URL': 'redis://externalstructureproxy-redis',
-    'CACHE_DEFAULT_TIMEOUT': 7200,
+    'CACHE_DEFAULT_TIMEOUT': 84600,
 })
