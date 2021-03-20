@@ -225,6 +225,7 @@ def metabolomicsworkbench():
 @cache.memoize()
 def _get_gnps_spectrum(gnpsid):
     r = requests.get("https://gnps.ucsd.edu/ProteoSAFe/SpectrumCommentServlet?SpectrumID={}".format(gnpsid))
+    r.raise_for_status()
 
     return r.text
 

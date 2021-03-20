@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  externalstructureproxy:
+  externalstructureproxy-web:
     build: .
     volumes:
       - ./output:/output:rw
@@ -29,8 +29,11 @@ services:
 
   externalstructureproxy-redis:
     image: redis:latest
+    volumes:
+    - ./redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       - default
+    command: redis-server /usr/local/etc/redis/redis.conf
 
 networks:
   nginx-net:
