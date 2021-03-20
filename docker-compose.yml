@@ -27,6 +27,11 @@ services:
     networks:
       - default
 
+  externalstructureproxy-redis:
+    image: redis:latest
+    networks:
+      - default
+
 networks:
   nginx-net:
     external:

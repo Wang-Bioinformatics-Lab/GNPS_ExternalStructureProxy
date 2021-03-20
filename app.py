@@ -2,6 +2,7 @@
 import os
 
 from flask import Flask
+from flask_caching import Cache
 
 APP_ROOT = os.path.dirname(os.path.realpath(__file__))
 DEBUG = False
@@ -19,3 +20,9 @@ class CustomFlask(Flask):
 
 app = CustomFlask(__name__)
 app.config.from_object(__name__)
+
+cache = Cache(app, config={
+    'CACHE_TYPE': "RedisCache",
+    'CACHE_REDIS_URL': 'redis://externalstructureproxy-redis',
+    'CACHE_DEFAULT_TIMEOUT': 84600,
+})

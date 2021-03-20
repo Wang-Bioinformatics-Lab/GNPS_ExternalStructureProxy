@@ -2,6 +2,7 @@
 from flask import abort, jsonify, render_template, request, redirect, url_for, send_file, send_from_directory
 
 from app import app
+from app import cache
 
 import json
 import csv
@@ -221,6 +222,16 @@ def metabolomicsworkbench():
 
 
 ### GNPS Spectral Library Delivery Endpoints that will be constantly updated
+@cache.memoize()
+def _get_gnps_spectrum(gnpsid):
+    r = requests.get("https://gnps.ucsd.edu/ProteoSAFe/SpectrumCommentServlet?SpectrumID={}".format(gnpsid))
+
+    return r.text
+
+@app.route('/gnpsspectrum', methods=['GET'])
+def gnpsspectrum():
+    gnpsid = request.values.get("SpectrumID")
+    return _get_gnps_spectrum(gnpsid)
 
 #Making it easy to query for all of GNPS library spectra
 @app.route('/gnpslibraryjson', methods=['GET'])
@@ -284,6 +295,7 @@ def msp_download(library):
 def json_download(library):
     return send_from_directory("/output", "{}.json".format(library))
 
+# DEBUG OFF
 npatlas_list = utils.load_NPAtlas("data/npatlas.json")
 mibig_list = utils.load_mibig("data/mibig.csv")
 gnps_list = utils.load_GNPS()

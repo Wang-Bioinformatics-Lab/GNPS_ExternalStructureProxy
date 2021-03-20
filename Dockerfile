@@ -15,6 +15,8 @@ RUN pip3 install celery
 RUN pip3 install redis
 RUN pip3 install tqdm
 RUN pip3 install werkzeug
+RUN pip3 install Flask-Caching
+RUN pip3 install redis
 
 COPY . /app
 WORKDIR /app
