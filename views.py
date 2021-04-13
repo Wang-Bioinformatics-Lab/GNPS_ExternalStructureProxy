@@ -298,6 +298,7 @@ def json_download(library):
 
 # DEBUG OFF
 npatlas_list = utils.load_NPAtlas("data/npatlas.json")
-mibig_list = utils.load_mibig("data/mibig.csv")
-gnps_list = utils.load_GNPS()
-gnps_list = utils.gnps_format_libraries(gnps_list)
+mibig_list = utils.load_mibig("data/mibig.tsv")
+gnps_list = []
+#gnps_list = utils.load_GNPS()
+#gnps_list = utils.gnps_format_libraries(gnps_list)

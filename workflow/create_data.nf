@@ -1,6 +1,7 @@
 #!/usr/bin/env nextflow
 
 params.input = ''
+params.gnpslibraryfilename = 'library_names.tsv'
 TOOL_FOLDER = "$baseDir/bin"
 
 process getMIBIG {
@@ -19,8 +20,22 @@ process getMIBIG {
     """
 }
 
-process createDB {
+process getGNPS {
+    publishDir "$baseDir", mode: 'copy', overwrite: true
 
+    input:
+    file gnps_filename from Channel.fromPath(params.gnpslibraryfilename)
+
+    output:
+    file "gnps.tsv" into gnpstable_ch
+    
+    """
+    python $TOOL_FOLDER/convert_gnps.py gnps.tsv
+    """
+}
+
+
+process createDB {
      publishDir "$baseDir", mode: 'copy', overwrite: true
 
     input:
@@ -32,6 +47,4 @@ process createDB {
     """
     csvs-to-sqlite mibig.tsv database.db --separator '\t'
     """
-
-    
 }

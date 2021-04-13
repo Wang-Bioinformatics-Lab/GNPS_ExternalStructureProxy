@@ -2,10 +2,7 @@ import requests
 import json
 import os
 import sys
-
 import pandas as pd
-from rdkit import Chem
-from rdkit.Chem.rdMolDescriptors import CalcMolFormula
 
 ## Caching Results for a specific amount of time
 if os.path.isdir("/output"):
@@ -17,60 +14,60 @@ LIBRARY_NAMES = list(pd.read_csv("library_names.tsv")["library"])
 def get_inchikey(smiles, inchi):
     inchikey_from_smiles = ""
     inchikey_from_inchi = ""
-    try:
-        if len(smiles) > 5:
-            inchikey_from_smiles = str(Chem.MolToInchiKey(Chem.MolFromSmiles(smiles)))
-        else:
-            inchikey_from_smiles = ""
-    except:
-        inchikey_from_smiles = ""
+    # try:
+    #     if len(smiles) > 5:
+    #         inchikey_from_smiles = str(Chem.MolToInchiKey(Chem.MolFromSmiles(smiles)))
+    #     else:
+    #         inchikey_from_smiles = ""
+    # except:
+    #     inchikey_from_smiles = ""
 
-    try:
-        if len(inchi) > 5:
-            inchikey_from_inchi = str(Chem.InchiToInchiKey(inchi))
-        else:
-            inchikey_from_inchi = ""
-    except:
-        inchikey_from_inchi = ""
+    # try:
+    #     if len(inchi) > 5:
+    #         inchikey_from_inchi = str(Chem.InchiToInchiKey(inchi))
+    #     else:
+    #         inchikey_from_inchi = ""
+    # except:
+    #     inchikey_from_inchi = ""
 
-    if len(inchikey_from_smiles) > 2 and len(inchikey_from_inchi) > 2:
-        return inchikey_from_smiles, inchikey_from_inchi
+    # if len(inchikey_from_smiles) > 2 and len(inchikey_from_inchi) > 2:
+    #     return inchikey_from_smiles, inchikey_from_inchi
 
-    if len(inchikey_from_smiles) > 2:
-        return inchikey_from_smiles, ""
+    # if len(inchikey_from_smiles) > 2:
+    #     return inchikey_from_smiles, ""
 
-    if len(inchikey_from_inchi) > 2:
-        return inchikey_from_inchi, ""
+    # if len(inchikey_from_inchi) > 2:
+    #     return inchikey_from_inchi, ""
 
     return "", ""
 
 def get_formula(smiles, inchi):
     formula_from_smiles = ""
     formula_from_inchi = ""
-    try:
-        if len(smiles) > 5:
-            formula_from_smiles = str(CalcMolFormula(Chem.MolFromSmiles(smiles)))
-        else:
-            formula_from_smiles = ""
-    except:
-        formula_from_smiles = ""
+    # try:
+    #     if len(smiles) > 5:
+    #         formula_from_smiles = str(CalcMolFormula(Chem.MolFromSmiles(smiles)))
+    #     else:
+    #         formula_from_smiles = ""
+    # except:
+    #     formula_from_smiles = ""
 
-    try:
-        if len(inchi) > 5:
-            formula_from_inchi = str(CalcMolFormula(Chem.MolFromInchi(inchi)))
-        else:
-            formula_from_inchi = ""
-    except:
-        formula_from_inchi = ""
+    # try:
+    #     if len(inchi) > 5:
+    #         formula_from_inchi = str(CalcMolFormula(Chem.MolFromInchi(inchi)))
+    #     else:
+    #         formula_from_inchi = ""
+    # except:
+    #     formula_from_inchi = ""
 
-    if len(formula_from_smiles) > 2 and len(formula_from_inchi) > 2:
-        return formula_from_smiles, formula_from_inchi
+    # if len(formula_from_smiles) > 2 and len(formula_from_inchi) > 2:
+    #     return formula_from_smiles, formula_from_inchi
 
-    if len(formula_from_smiles) > 2:
-        return formula_from_smiles, ""
+    # if len(formula_from_smiles) > 2:
+    #     return formula_from_smiles, ""
 
-    if len(formula_from_inchi) > 2:
-        return formula_from_inchi, ""
+    # if len(formula_from_inchi) > 2:
+    #     return formula_from_inchi, ""
 
     return "", ""
 
@@ -82,16 +79,14 @@ def load_NPAtlas(filepath):
     return all_npatlas
 
 def load_mibig(filepath):
-    df = pd.read_csv(filepath, sep=",")
+    df = pd.read_csv(filepath, sep="\t")
 
     output_list = []
     results_list = df.to_dict(orient="records")
     for result in results_list:
-        inchikey_from_smiles, inchikey_from_inchi = get_inchikey(result["smiles"], "")
-
         output_dict = {}
-        output_dict["BGCID"] = result["bgc id"]
-        output_dict["COMPOUND_INCHIKEY"] = inchikey_from_smiles
+        output_dict["BGCID"] = result["mibig_accession"]
+        output_dict["COMPOUND_INCHIKEY"] = result["inchikey"]
 
         output_list.append(output_dict)
 
@@ -101,7 +96,7 @@ def load_mibig(filepath):
 def load_GNPS(library_names=LIBRARY_NAMES):
     all_GNPS_list = []
 
-    for library_name in library_names:
+    for library_name in library_names[:2]:
         print(library_name)
         url = "https://gnps.ucsd.edu/ProteoSAFe/LibraryServlet?library=%s" % (library_name)
         all_GNPS_list += requests.get(url).json()["spectra"]
@@ -201,6 +196,8 @@ def get_gnps_peaks(all_GNPS_list):
 
     return output_list
 
+# def output_gnps_individual_libraries()
+
 # Utils for outputting GNPS libraries and getting all the peaks, returns the list
 def output_all_gnps_individual_libraries(all_json_list, output_folder):
     spectra_list_with_peaks = []
@@ -223,7 +220,7 @@ def output_all_gnps_individual_libraries(all_json_list, output_folder):
 
     return spectra_list_with_peaks
 
-    
+
 
 def get_full_mgf_string(all_json_list):
     mgf_string_list = []
