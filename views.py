@@ -127,22 +127,12 @@ def get_mibig(smiles, inchi, inchikey):
 
     return BGCID
 
+
+from worker_tasks import get_gnps_by_structure_task
+
 def get_gnps(smiles, inchi, inchikey):
-    inchikey_from_smiles, inchikey_from_inchi = utils.get_inchikey(smiles, inchi)
-
-    acceptable_key = set([inchikey, inchikey_from_smiles, inchikey_from_inchi])
-
-    found_spectrum_list = []
-
-    for gnps_spectrum in gnps_list:
-        if len(gnps_spectrum["InChIKey_smiles"]) > 2 and gnps_spectrum["InChIKey_smiles"] in acceptable_key:
-            found_spectrum_list.append(gnps_spectrum)
-        elif len(gnps_spectrum["InChIKey_inchi"]) > 2 and gnps_spectrum["InChIKey_inchi"] in acceptable_key:
-            found_spectrum_list.append(gnps_spectrum)
-    
-    return found_spectrum_list
-
-
+    results = get_gnps_by_structure_task.delay(smiles, inchi, inchikey)
+    return results.get()
 
 
 @app.route('/structureproxy', methods=['GET'])
@@ -299,5 +289,4 @@ def json_download(library):
 # DEBUG OFF
 npatlas_list = utils.load_NPAtlas("data/npatlas.json")
 mibig_list = utils.load_mibig("data/mibig.csv")
-gnps_list = utils.load_GNPS()
-gnps_list = utils.gnps_format_libraries(gnps_list)
+
