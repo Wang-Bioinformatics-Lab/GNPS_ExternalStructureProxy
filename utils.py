@@ -2,6 +2,7 @@ import requests
 import json
 import os
 import sys
+import time 
 
 import pandas as pd
 from rdkit import Chem
@@ -198,6 +199,8 @@ def get_gnps_peaks(all_GNPS_list):
             raise
         except:
             continue
+
+        time.sleep(0.1)
 
     return output_list
 
