@@ -12,7 +12,7 @@ celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis'
 
 @worker_ready.connect
 def onstart(**k):
-    _gnps_list = utils.load_GNPS(library_names=["GNPS-LIBRARY"])
+    _gnps_list = utils.load_GNPS()
     _gnps_list = utils.gnps_format_libraries(_gnps_list)
 
     gnps_df = pd.DataFrame(_gnps_list)
