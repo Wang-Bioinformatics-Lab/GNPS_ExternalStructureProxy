@@ -1,0 +1,12 @@
+flask
+gunicorn
+requests
+requests_cache
+pandas
+celery
+redis
+tqdm
+werkzeug
+Flask-Caching
+redis
+pyarrow==3.0.0
