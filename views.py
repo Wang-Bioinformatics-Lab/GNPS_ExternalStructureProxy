@@ -286,6 +286,16 @@ def msp_download(library):
 def json_download(library):
     return send_from_directory("/output", "{}.json".format(library))
 
+
+# Admin
+from gnps_tasks import generate_gnps_data
+@app.route('/admin/updatelibraries', methods=['GET'])
+def updatelibraries():
+    generate_gnps_data.delay()
+    return "Running"
+    
+
+
 # DEBUG OFF
 npatlas_list = utils.load_NPAtlas("data/npatlas.json")
 mibig_list = utils.load_mibig("data/mibig.csv")
