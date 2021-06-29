@@ -12,11 +12,11 @@ celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis'
 
 @worker_ready.connect
 def onstart(**k):
-    _gnps_list = utils.load_GNPS()
+    _gnps_list = utils.load_GNPS(library_names=["GNPS-LIBRARY"])
     _gnps_list = utils.gnps_format_libraries(_gnps_list)
 
     gnps_df = pd.DataFrame(_gnps_list)
-    gnps_df.to_csv("gnps_list.tsv", sep="\t", index=False)
+    gnps_df.to_feather("gnps_list.feather")
 
 @celery_instance.task(time_limit=60)
 def task_computeheartbeat():
@@ -27,7 +27,7 @@ def task_computeheartbeat():
 def get_gnps_by_structure_task(smiles, inchi, inchikey):
     inchikey_from_smiles, inchikey_from_inchi = utils.get_inchikey(smiles, inchi)
 
-    gnps_df = pd.read_csv("gnps_list.tsv", sep="\t")
+    gnps_df = pd.read_feather("gnps_list.feather")
     gnps_df["InChIKey_smiles"] = gnps_df["InChIKey_smiles"].astype(str)
     gnps_df["InChIKey_inchi"] = gnps_df["InChIKey_inchi"].astype(str)
 
