@@ -58,3 +58,7 @@ celery_instance.conf.beat_schedule = {
         "schedule": 86400
     }
 }
+
+celery_instance.conf.task_routes = {
+    'gnps_tasks.generate_gnps_data': {'queue': 'beat_worker'},
+}

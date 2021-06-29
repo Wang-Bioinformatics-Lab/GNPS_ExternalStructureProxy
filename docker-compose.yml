@@ -5,6 +5,7 @@ services:
     build: .
     volumes:
       - ./output:/output:rw
+      - ./data:/app/data:ro
       - ./ftpproxy:/ftpproxy:rw
     ports:
       - "5010:5000"
@@ -19,6 +20,18 @@ services:
       - default
     restart: unless-stopped
     command: /app/run_beat.sh
+    depends_on: 
+      - externalstructureproxy-rabbitmq
+
+  externalstructureproxy-worker1:
+    build: .
+    container_name: externalstructureproxy-worker1
+    volumes:
+        - ./output:/output:rw
+    networks:
+      - default
+    restart: unless-stopped
+    command: /app/run_worker.sh
     depends_on: 
       - externalstructureproxy-rabbitmq
 
