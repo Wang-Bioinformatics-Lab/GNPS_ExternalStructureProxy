@@ -296,8 +296,15 @@ def updatelibraries():
 # CORS for GNPS data
 @app.route('/gnpscors', methods=['GET'])
 def gnps_cors():
-    gnps_path = request.values.get("path")
-    r = requests.get("https://gnps.ucsd.edu/{}".format(gnps_path))
+    path = request.values.get("path")
+
+    payload = {}
+    for key in request.values:
+        if key == "path":
+            continue
+        payload[key] = request.values.get(key)
+
+    r = requests.get("https://gnps.ucsd.edu/{}".format(path), params=payload)
     
     return r.content, r.status_code
 
