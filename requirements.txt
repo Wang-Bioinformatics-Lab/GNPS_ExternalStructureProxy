@@ -10,3 +10,4 @@ werkzeug
 Flask-Caching
 redis
 pyarrow==3.0.0
+expiringdict
