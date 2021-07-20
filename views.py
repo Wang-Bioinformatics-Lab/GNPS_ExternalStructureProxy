@@ -254,17 +254,13 @@ def gnpslibraryfornpatlastsv():
 def gnpslibrary():
     library_list = pd.read_csv("library_names.tsv").to_dict(orient="records")
 
-    library_list = []
-    for library_obj in library_list:
-        library_name = library_obj["library_name"]
+    for library_dict in library_list:
+        library_name = library_dict["library"]
 
-        library_dict = {}
         library_dict["libraryname"] = library_name
-        library_dict["type"] = library_obj["type"]
         library_dict["mgflink"] = "/gnpslibrary/{}.mgf".format(library_name)
         library_dict["msplink"] = "/gnpslibrary/{}.msp".format(library_name)
         library_dict["jsonlink"] = "/gnpslibrary/{}.json".format(library_name)
-        library_list.append(library_dict)
 
     library_name = "ALL_GNPS"
     library_dict = {}
