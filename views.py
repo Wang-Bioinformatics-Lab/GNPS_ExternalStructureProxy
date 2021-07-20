@@ -252,12 +252,15 @@ def gnpslibraryfornpatlastsv():
 # Download Page for Spectral Libraries
 @app.route('/gnpslibrary', methods=['GET'])
 def gnpslibrary():
-    LIBRARY_NAMES = list(pd.read_csv("library_names.tsv")["library"])
+    library_list = pd.read_csv("library_names.tsv").to_dict(orient="records")
 
     library_list = []
-    for library_name in LIBRARY_NAMES:
+    for library_obj in library_list:
+        library_name = library_obj["library_name"]
+
         library_dict = {}
         library_dict["libraryname"] = library_name
+        library_dict["type"] = library_obj["type"]
         library_dict["mgflink"] = "/gnpslibrary/{}.mgf".format(library_name)
         library_dict["msplink"] = "/gnpslibrary/{}.msp".format(library_name)
         library_dict["jsonlink"] = "/gnpslibrary/{}.json".format(library_name)
@@ -266,6 +269,7 @@ def gnpslibrary():
     library_name = "ALL_GNPS"
     library_dict = {}
     library_dict["libraryname"] = library_name
+    library_dict["type"] = "AGGREGATION"
     library_dict["mgflink"] = "/gnpslibrary/{}.mgf".format(library_name)
     library_dict["msplink"] = "/gnpslibrary/{}.msp".format(library_name)
     library_dict["jsonlink"] = "/gnpslibrary/{}.json".format(library_name)

@@ -45,6 +45,9 @@
                         GNPS Library
                     </th>
                     <th>
+                        Library Type
+                    </th>
+                    <th>
                         MGF Download
                     </th>
                     <th>
@@ -58,6 +61,7 @@
                 <tbody>
                     <tr v-for="library_dict in library_list">
                         <td>{{library_dict.libraryname}}</td>
+                        <td>{{library_dict.type}}</td>
                         <td>
                             <download-linkout :url=library_dict.mgflink :libraryname=library_dict.libraryname></gnps-linkout>
                         </td>
