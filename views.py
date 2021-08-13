@@ -248,7 +248,6 @@ def gnpslibraryfornpatlasjson():
 def gnpslibraryfornpatlastsv():
     return send_from_directory("/output", "gnpslibraries_npatlas.tsv")
 
-
 # Download Page for Spectral Libraries
 @app.route('/gnpslibrary', methods=['GET'])
 def gnpslibrary():
@@ -273,6 +272,12 @@ def gnpslibrary():
 
     return render_template('gnpslibrarylist.html', library_list=library_list)
 
+
+# Library List
+@app.route('/gnpslibrary.json', methods=['GET'])
+def gnpslibraryjson():
+    library_list = pd.read_csv("library_names.tsv").to_dict(orient="records")
+    return json.dumps(library_list.to_dict(orient="records")
 
 @app.route('/gnpslibrary/<library>.mgf', methods=['GET'])
 def mgf_download(library):
