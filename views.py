@@ -277,7 +277,7 @@ def gnpslibrary():
 @app.route('/gnpslibrary.json', methods=['GET'])
 def gnpslibrarieslistjson():
     library_list = pd.read_csv("library_names.tsv").to_dict(orient="records")
-    return json.dumps(library_list.to_dict(orient="records"))
+    return json.dumps(library_list)
 
 @app.route('/gnpslibrary/<library>.mgf', methods=['GET'])
 def mgf_download(library):
