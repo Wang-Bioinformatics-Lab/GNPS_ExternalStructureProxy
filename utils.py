@@ -200,7 +200,8 @@ def get_gnps_peaks(all_GNPS_list):
         except:
             continue
 
-        time.sleep(0.1)
+        # Sleeping to help throttle requests, at this rate it should take a few days to get all data
+        time.sleep(0.25)
 
     return output_list
 
