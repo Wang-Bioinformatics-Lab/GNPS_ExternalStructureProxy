@@ -7,6 +7,7 @@ services:
       - ./output:/output:rw
       - ./data:/app/data:ro
       - ./ftpproxy:/ftpproxy:rw
+    restart: on-failure
     ports:
       - "5010:5000"
     command: /app/run_server.sh
@@ -18,7 +19,7 @@ services:
         - ./output:/output:rw
     networks:
       - default
-    restart: unless-stopped
+    restart: on-failure
     command: /app/run_beat.sh
     depends_on: 
       - externalstructureproxy-rabbitmq
@@ -30,7 +31,7 @@ services:
         - ./output:/output:rw
     networks:
       - default
-    restart: unless-stopped
+    restart: on-failure
     command: /app/run_worker.sh
     depends_on: 
       - externalstructureproxy-rabbitmq
@@ -46,6 +47,7 @@ services:
     - ./redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       - default
+    restart: on-failure
     command: redis-server /usr/local/etc/redis/redis.conf
 
 networks:
