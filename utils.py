@@ -317,15 +317,15 @@ def json_to_msp(json_spectrum):
     mgf_string += "INSTRUMENT: " + json_spectrum["Instrument"] + "\n"
     mgf_string += "COLLISIONENERGY: \n"
     mgf_string += "Comment: DB#=" + json_spectrum["SpectrumID"] + "; origin=" + "GNPS\n"
-        
+
     peaks_json = json_spectrum["peaks_json"]
 
     if len(peaks_json) < 1000000:
-        peaks_object = json.loads(peaks_json)
-        mgf_string += "Num Peaks: " + str(len(peaks_object)) +  "\n"
-        for peak in peaks_object:
-            if peak[1] > 0:
-                mgf_string += str(peak[0]) + "\t" + str(peak[1]) + "\n"
+        peaks_list = json.loads(peaks_json)
+        peaks_list = [peak for peak in peaks_list if peak[1] > 0]
+        mgf_string += "Num Peaks: " + str(len(peaks_list)) +  "\n"
+        for peak in peaks_list:
+            mgf_string += str(peak[0]) + "\t" + str(peak[1]) + "\n"
     # else:
     #     print("SKIPPING: " + json_spectrum["SpectrumID"] + " " + str(len(peaks_json)))
     
