@@ -243,7 +243,9 @@ def get_full_msp_string(all_json_list):
     
     for spectrum in all_json_list:
         try:
-            msp_string_list.append(json_to_msp(spectrum))
+            msp_string = json_to_msp(spectrum)
+            if msp_string is not None:
+                msp_string_list.append(msp_string)
         except KeyboardInterrupt:
             raise
         except:
@@ -303,35 +305,39 @@ def json_to_msp(json_spectrum):
         #print("CHALLENGE OR UNKNOWN CLASS, SKIPPING: " + json_spectrum["Library_Class"] + "\t" + json_spectrum["SpectrumID"])
         return ""
     
-    mgf_string = "NAME: " + json_spectrum["Compound_Name"] + "\n"
-    mgf_string += "PRECURSORMZ: " + json_spectrum["Precursor_MZ"] + "\n"
-    mgf_string += "PRECURSORTYPE: " + json_spectrum["Adduct"] + "\n"
-    mgf_string += "FORMULA: \n"
-    mgf_string += "Ontology: \n"
-    mgf_string += "INCHIKEY: " + json_spectrum["InChIKey_inchi"] + "\n"
-    mgf_string += "SMILES: " + json_spectrum["Smiles"] + "\n"
-    mgf_string += "RETENTIONTIME: "
-    mgf_string += "CCS: \n"
-    mgf_string += "IONMODE: " + json_spectrum["Ion_Mode"] + "\n"
-    mgf_string += "INSTRUMENTTYPE: "  + json_spectrum["Ion_Source"] + "-" + json_spectrum["Instrument"] + "\n"
-    mgf_string += "INSTRUMENT: " + json_spectrum["Instrument"] + "\n"
-    mgf_string += "COLLISIONENERGY: \n"
-    mgf_string += "Comment: DB#=" + json_spectrum["SpectrumID"] + "; origin=" + "GNPS\n"
+    msp_string = "NAME: " + json_spectrum["Compound_Name"] + "\n"
+    msp_string += "PRECURSORMZ: " + json_spectrum["Precursor_MZ"] + "\n"
+    msp_string += "PRECURSORTYPE: " + json_spectrum["Adduct"] + "\n"
+    msp_string += "FORMULA: \n"
+    msp_string += "Ontology: \n"
+    msp_string += "INCHIKEY: " + json_spectrum["InChIKey_inchi"] + "\n"
+    msp_string += "SMILES: " + json_spectrum["Smiles"] + "\n"
+    msp_string += "RETENTIONTIME: "
+    msp_string += "CCS: \n"
+    msp_string += "IONMODE: " + json_spectrum["Ion_Mode"] + "\n"
+    msp_string += "INSTRUMENTTYPE: "  + json_spectrum["Ion_Source"] + "-" + json_spectrum["Instrument"] + "\n"
+    msp_string += "INSTRUMENT: " + json_spectrum["Instrument"] + "\n"
+    msp_string += "COLLISIONENERGY: \n"
+    msp_string += "Comment: DB#=" + json_spectrum["SpectrumID"] + "; origin=" + "GNPS\n"
 
     peaks_json = json_spectrum["peaks_json"]
 
     if len(peaks_json) < 1000000:
         peaks_list = json.loads(peaks_json)
         peaks_list = [peak for peak in peaks_list if peak[1] > 0]
-        mgf_string += "Num Peaks: " + str(len(peaks_list)) +  "\n"
+
+        if len(peaks_list) == 0:
+            return None
+
+        msp_string += "Num Peaks: " + str(len(peaks_list)) +  "\n"
         for peak in peaks_list:
-            mgf_string += str(peak[0]) + "\t" + str(peak[1]) + "\n"
+            msp_string += str(peak[0]) + "\t" + str(peak[1]) + "\n"
     # else:
     #     print("SKIPPING: " + json_spectrum["SpectrumID"] + " " + str(len(peaks_json)))
     
-    mgf_string += "\n"
+    msp_string += "\n"
     
-    return mgf_string
+    return msp_string
 
 
 
