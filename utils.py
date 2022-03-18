@@ -118,7 +118,6 @@ def gnps_format_libraries(all_GNPS_list):
 
     all_spectra = []
     for spectrum in tqdm(all_GNPS_list):
-
         smiles = spectrum["Smiles"]
         inchi =  spectrum["INCHI"]
 
@@ -196,13 +195,24 @@ def get_gnps_peaks(all_GNPS_list):
             new_spectrum["peaks_json"] = spectrum_json["spectruminfo"]["peaks_json"]
             new_spectrum["annotation_history"] = spectrum_json["annotations"]
             output_list.append(new_spectrum)
+
+            # Figuring out if we should throttle
+            try:
+                if r.from_cache is True:
+                    continue
+                else:
+                    # Sleeping to help throttle requests, at this rate it should take a few days to get all data
+                    time.sleep(0.1)
+            except:
+                # Sleeping to help throttle requests, at this rate it should take a few days to get all data
+                time.sleep(0.1)
+
         except KeyboardInterrupt:
             raise
         except:
             continue
 
-        # Sleeping to help throttle requests, at this rate it should take a few days to get all data
-        time.sleep(0.1)
+        
 
     return output_list
 

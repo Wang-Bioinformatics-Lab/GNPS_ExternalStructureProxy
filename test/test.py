@@ -8,7 +8,7 @@ sys.path.insert(0, "..")
 
 def test_filtered_spectra():
     import utils
-    spectra_list = utils.load_GNPS(library_names=["GNPS-LIBRARY"])
+    spectra_list, library_list_df = utils.load_GNPS(library_names=["GNPS-LIBRARY"])
     spectra_list = utils.gnps_format_libraries(spectra_list)
 
     with open("output_enriched_list.json", "w") as output_file:
@@ -23,7 +23,7 @@ def test_filtered_spectra():
 
 def test_get_library_peaks():
     import utils
-    spectra_list = utils.load_GNPS(library_names=["GNPS-LIBRARY"])[:100]
+    spectra_list, library_list_df = utils.load_GNPS(library_names=["GNPS-LIBRARY"])[:100]
     spectra_list = utils.gnps_format_libraries(spectra_list)
     spectra_list_with_peaks = utils.output_all_gnps_individual_libraries(spectra_list, ".")
 
@@ -43,7 +43,7 @@ def test_get_library_peaks():
 def test_get_library_peaks_full():
     import utils
     output_folder = "."
-    spectra_list = utils.load_GNPS()
+    spectra_list, library_list_df = utils.load_GNPS()
     spectra_list = utils.gnps_format_libraries(spectra_list)
 
     spectra_list_with_peaks = utils.output_all_gnps_individual_libraries(spectra_list, ".")
@@ -62,8 +62,8 @@ def test_get_library_peaks_full():
 
 def test_get_suspect_library_peaks():
     import utils
-    spectra_list = utils.load_GNPS(library_names=["GNPS-SUSPECTLIST"])[:10]
-    spectra_list = utils.gnps_format_libraries(spectra_list)
+    spectra_list, library_list_df = utils.load_GNPS(library_names=["GNPS-SUSPECTLIST"])
+    spectra_list = utils.gnps_format_libraries(spectra_list[:10])
     spectra_list_with_peaks = utils.output_all_gnps_individual_libraries(spectra_list, ".")
 
     print(len(spectra_list_with_peaks))
