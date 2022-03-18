@@ -60,3 +60,19 @@ def test_get_library_peaks_full():
         output_file.write(msp_string.encode("ascii", "ignore"))
 
 
+def test_get_suspect_library_peaks():
+    import utils
+    spectra_list = utils.load_GNPS(library_names=["GNPS-SUSPECTLIST"])[:10]
+    spectra_list = utils.gnps_format_libraries(spectra_list)
+    spectra_list_with_peaks = utils.output_all_gnps_individual_libraries(spectra_list, ".")
+
+    print(len(spectra_list_with_peaks))
+
+    mgf_string = utils.get_full_mgf_string(spectra_list_with_peaks)
+    print(mgf_string)
+
+def main():
+    test_get_suspect_library_peaks()
+
+if __name__ == "__main__":
+    main()

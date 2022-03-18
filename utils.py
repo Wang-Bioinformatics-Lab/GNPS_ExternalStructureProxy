@@ -256,7 +256,7 @@ def get_full_msp_string(all_json_list):
 def json_object_to_string(json_spectrum):
     #print(json_spectrum["SpectrumID"])
     
-    if int(json_spectrum["Library_Class"]) > 3:
+    if int(json_spectrum["Library_Class"]) > 4:
         #print("CHALLENGE OR UNKNOWN CLASS, SKIPPING: " + json_spectrum["Library_Class"] + "\t" + json_spectrum["SpectrumID"])
         return ""
     
