@@ -264,14 +264,16 @@ def gnpslibrary():
         library_dict["msplink"] = "/gnpslibrary/{}.msp".format(library_name)
         library_dict["jsonlink"] = "/gnpslibrary/{}.json".format(library_name)
 
+    library_name = "ALL_GNPS"
     library_dict = {}
-    library_dict["libraryname"] = "ALL_GNPS"
+    library_dict["libraryname"] = library_name
     library_dict["type"] = "AGGREGATION"
     library_dict["mgflink"] = "/gnpslibrary/{}.mgf".format(library_name)
     library_dict["msplink"] = "/gnpslibrary/{}.msp".format(library_name)
     library_dict["jsonlink"] = "/gnpslibrary/{}.json".format(library_name)
     library_list.append(library_dict)
 
+    library_name = "ALL_GNPS_NO_PROPOGATED"
     library_dict = {}
     library_dict["libraryname"] = "ALL_GNPS_NO_PROPOGATED"
     library_dict["type"] = "AGGREGATION"
