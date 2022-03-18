@@ -11,9 +11,10 @@ from rdkit.Chem.rdMolDescriptors import CalcMolFormula
 ## Caching Results for a specific amount of time
 if os.path.isdir("/output"):
     import requests_cache
-    requests_cache.install_cache('/output/requests_cache', expire_after=86400)
+    requests_cache.install_cache('/output/requests_cache', expire_after=592200) # one week cache
 
-LIBRARY_NAMES = list(pd.read_csv("library_names.tsv")["library"])
+library_df = pd.read_csv("library_names.tsv")
+LIBRARY_NAMES = list(library_df["library"])
 
 def get_inchikey(smiles, inchi):
     inchikey_from_smiles = ""
@@ -107,7 +108,7 @@ def load_GNPS(library_names=LIBRARY_NAMES):
         url = "https://gnps.ucsd.edu/ProteoSAFe/LibraryServlet?library=%s" % (library_name)
         all_GNPS_list += requests.get(url).json()["spectra"]
 
-    return all_GNPS_list
+    return all_GNPS_list, library_df
 
 
     
@@ -201,7 +202,7 @@ def get_gnps_peaks(all_GNPS_list):
             continue
 
         # Sleeping to help throttle requests, at this rate it should take a few days to get all data
-        time.sleep(0.25)
+        time.sleep(0.1)
 
     return output_list
 
@@ -212,22 +213,23 @@ def output_all_gnps_individual_libraries(all_json_list, output_folder):
     for library in LIBRARY_NAMES:
         library_spectra_list = [spectrum for spectrum in all_json_list if spectrum["library_membership"] == library]
         library_spectra_list_with_peaks = get_gnps_peaks(library_spectra_list)
-
-        if len(library_spectra_list) > 0:
-            with open(os.path.join(output_folder, "{}.mgf".format(library)), "wb") as output_file:
-                output_file.write(get_full_mgf_string(library_spectra_list_with_peaks).encode("ascii", "ignore"))
-
-            with open(os.path.join(output_folder, "{}.msp".format(library)), "wb") as output_file:
-                output_file.write(get_full_msp_string(library_spectra_list_with_peaks).encode("ascii", "ignore"))
-
-            with open(os.path.join(output_folder, "{}.json".format(library)), "w") as output_file:
-                output_file.write(json.dumps(library_spectra_list_with_peaks, indent=4))
+        _output_library_files(library_spectra_list_with_peaks, output_folder, library)
 
         spectra_list_with_peaks += library_spectra_list_with_peaks
 
     return spectra_list_with_peaks
 
-    
+def _output_library_files(library_spectra_list_with_peaks, output_folder, library_name):
+    if len(library_spectra_list_with_peaks) > 0:
+        with open(os.path.join(output_folder, "{}.mgf".format(library_name)), "wb") as output_file:
+            output_file.write(get_full_mgf_string(library_spectra_list_with_peaks).encode("ascii", "ignore"))
+
+        with open(os.path.join(output_folder, "{}.msp".format(library_name)), "wb") as output_file:
+            output_file.write(get_full_msp_string(library_spectra_list_with_peaks).encode("ascii", "ignore"))
+
+        with open(os.path.join(output_folder, "{}.json".format(library_name)), "w") as output_file:
+            output_file.write(json.dumps(library_spectra_list_with_peaks, indent=4))
+
 
 def get_full_mgf_string(all_json_list):
     mgf_string_list = []
