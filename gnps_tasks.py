@@ -37,7 +37,7 @@ def generate_gnps_data():
     encriched_gnps_libraries_with_peaks = utils.output_all_gnps_individual_libraries(encriched_gnps_libraries, "/output/")
 
     # Lets make separate spectra aggregations
-    non_propogated_library_list = set(library_list_df[library_list_df["type"].isin(["GNPS", "IMPORT"])])
+    non_propogated_library_list = set(library_list_df[library_list_df["type"].isin(["GNPS", "IMPORT"])]["library"])
     non_propogated_encriched_gnps_libraries_with_peaks = [spectrum_dict for spectrum_dict in encriched_gnps_libraries_with_peaks if spectrum_dict["library_membership"] in non_propogated_library_list]
     
     utils._output_library_files(non_propogated_encriched_gnps_libraries_with_peaks, "/output/", "ALL_GNPS_NO_PROPOGATED")
