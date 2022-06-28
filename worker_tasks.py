@@ -12,12 +12,24 @@ celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis'
 
 @worker_ready.connect
 def onstart(**k):
+    # MIBIG and NPATLAS
+    _npatlas_list = utils.load_NPAtlas("data/npatlas.json")
+    _mibig_list = utils.load_mibig("data/mibig.csv")
+
+    npatlas_df = pd.DataFrame(_npatlas_list)
+    npatlas_df.to_feather("npatlas_list.feather")
+
+    mibig_df = pd.DataFrame(_mibig_list)
+    mibig_df.to_feather("mibig_list.feather")
+
     #_gnps_list = utils.load_GNPS(library_names=["GNPS-LIBRARY"])
     _gnps_list, library_list_df = utils.load_GNPS()
     _gnps_list = utils.gnps_format_libraries(_gnps_list)
 
     gnps_df = pd.DataFrame(_gnps_list)
     gnps_df.to_feather("gnps_list.feather")
+
+    
 
 @celery_instance.task(time_limit=60)
 def task_computeheartbeat():
@@ -54,7 +66,49 @@ def get_gnps_by_structure_task(smiles, inchi, inchikey):
     return found_spectrum_list
 
 
+@celery_instance.task(time_limit=60)
+def get_npatlas_by_structure_task(inchikey):
+    if "npatlas_list" in memory_cache:
+        npatlas_list = memory_cache["npatlas_list"]
+    else:
+        npatlas_df = pd.read_feather("npatlas_list.feather")
+
+        npatlas_list = npatlas_df.to_dict(orient="records")
+        memory_cache["npatlas_list"] = npatlas_list
+
+    NPAID = None
+
+    for npatlas_entry in npatlas_list:
+        if len(npatlas_entry["COMPOUND_INCHIKEY"]) > 5 and npatlas_entry["COMPOUND_INCHIKEY"].split("-")[0] in acceptable_key:
+            NPAID = npatlas_entry["NPAID"]
+            break
+
+    return NPAID
+
+
+@celery_instance.task(time_limit=60)
+def get_mibig_by_structure_task(inchikey):
+
+    if "mibig_list" in memory_cache:
+        npatlas_list = memory_cache["mibig_list"]
+    else:
+        mibig_df = pd.read_feather("mibig_list.feather")
+
+        mibig_list = mibig_df.to_dict(orient="records")
+        memory_cache["mibig_list"] = mibig_list
+
+    BGCID = None
+
+    for mibig_entry in mibig_list:
+        if len(mibig_entry["COMPOUND_INCHIKEY"]) > 5 and mibig_entry["COMPOUND_INCHIKEY"].split("-")[0] in acceptable_key:
+            BGCID = mibig_entry["BGCID"]
+            break
+
+    return BGCID
+
 
 celery_instance.conf.task_routes = {
     'worker_tasks.get_gnps_by_structure_task': {'queue': 'worker'},
+    'worker_tasks.get_mibig_by_structure_task': {'queue': 'worker'},
+    'worker_tasks.get_npatlas_by_structure_task': {'queue': 'worker'},
 }
