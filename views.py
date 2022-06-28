@@ -11,8 +11,6 @@ import requests_cache
 import utils
 import pandas as pd
 
-from worker_tasks import get_gnps_by_structure_task, get_mibig_by_structure_task, get_npatlas_by_structure_task
-
 requests_cache.install_cache('demo_cache')
 
 @app.route('/heartbeat', methods=['GET'])
@@ -107,16 +105,30 @@ def get_npatlas(smiles, inchi, inchikey):
     print(inchikey_from_smiles, inchikey_from_inchi)
     acceptable_key = set([inchikey.split("-")[0], inchikey_from_smiles.split("-")[0], inchikey_from_inchi.split("-")[0]])
 
-    npatlas_result = get_npatlas_by_structure_task.delay(acceptable_key)
-    return npatlas_result.get()
+    NPAID = None
+
+    for npatlas_entry in npatlas_list:
+        if len(npatlas_entry["COMPOUND_INCHIKEY"]) > 5 and npatlas_entry["COMPOUND_INCHIKEY"].split("-")[0] in acceptable_key:
+            NPAID = npatlas_entry["NPAID"]
+            break
+
+    return NPAID
 
 def get_mibig(smiles, inchi, inchikey):
     inchikey_from_smiles, inchikey_from_inchi = utils.get_inchikey(smiles, inchi)
     acceptable_key = set([inchikey.split("-")[0], inchikey_from_smiles.split("-")[0], inchikey_from_inchi.split("-")[0]])
 
-    mibig_result = get_mibig_by_structure_task.delay(acceptable_key)
-    return mibig_result.get()
+    BGCID = None
 
+    for mibig_entry in mibig_list:
+        if len(mibig_entry["COMPOUND_INCHIKEY"]) > 5 and mibig_entry["COMPOUND_INCHIKEY"].split("-")[0] in acceptable_key:
+            BGCID = mibig_entry["BGCID"]
+            break
+
+    return BGCID
+
+
+from worker_tasks import get_gnps_by_structure_task
 
 def get_gnps(smiles, inchi, inchikey):
     results = get_gnps_by_structure_task.delay(smiles, inchi, inchikey)
@@ -314,5 +326,7 @@ def gnps_cors():
     
     return r.content, r.status_code
 
-
+# DEBUG OFF
+npatlas_list = utils.load_NPAtlas("data/npatlas.json")
+mibig_list = utils.load_mibig("data/mibig.csv")
 
