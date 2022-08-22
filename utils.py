@@ -288,7 +288,7 @@ def json_object_to_string(json_spectrum):
     mgf_string += "SMILES=" + json_spectrum["Smiles"] + "\n"
     mgf_string += "INCHI=" + json_spectrum["INCHI"] + "\n"
     mgf_string += "INCHIAUX=" + json_spectrum["INCHI_AUX"] + "\n"
-    mgf_string += "PUBMED=" + json_spectrum["Pubmed_ID"] + "\n"    
+    mgf_string += "PUBMED=" + json_spectrum["Pubmed_ID"] + "\n"
     mgf_string += "SUBMITUSER=" + json_spectrum["submit_user"] + "\n"
     
     
@@ -316,13 +316,26 @@ def json_to_msp(json_spectrum):
     if int(json_spectrum["Library_Class"]) > 3:
         #print("CHALLENGE OR UNKNOWN CLASS, SKIPPING: " + json_spectrum["Library_Class"] + "\t" + json_spectrum["SpectrumID"])
         return ""
+
+    
+
+    # Determine inchikey
+    inchi_key = json_spectrum["InChIKey_inchi"]
+    if len(inchi_key) < 5 and len(json_spectrum["InChIKey_smiles"]) > 5:
+        inchi_key = json_spectrum["InChIKey_smiles"]
+
+    # Determine formula
+    formula = json_spectrum["Formula_smiles"]
+    if len(formula) < 5 and len(json_spectrum["Formula_inchi"]) > 5:
+        formula = json_spectrum["Formula_inchi"]
     
     msp_string = "NAME: " + json_spectrum["Compound_Name"] + "\n"
     msp_string += "PRECURSORMZ: " + json_spectrum["Precursor_MZ"] + "\n"
     msp_string += "PRECURSORTYPE: " + json_spectrum["Adduct"] + "\n"
-    msp_string += "FORMULA: \n"
+    msp_string += "FORMULA: {}\n".format(formula)
     msp_string += "Ontology: \n"
-    msp_string += "INCHIKEY: " + json_spectrum["InChIKey_inchi"] + "\n"
+    msp_string += "INCHIKEY: {}\n".format(inchi_key)
+    msp_string += "INCHI: " + json_spectrum["INCHI"] + "\n"
     msp_string += "SMILES: " + json_spectrum["Smiles"] + "\n"
     msp_string += "RETENTIONTIME: "
     msp_string += "CCS: \n"
