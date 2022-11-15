@@ -1,4 +1,4 @@
-FROM continuumio/miniconda3:4.7.12
+FROM continuumio/miniconda3:4.10.3
 MAINTAINER Mingxun Wang "mwang87@gmail.com"
 
 RUN apt-get update -y && apt-get install -y libxrender-dev build-essential
