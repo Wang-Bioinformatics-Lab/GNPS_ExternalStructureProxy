@@ -14,23 +14,23 @@ bash:
 	docker run --rm -it -p 5010:5000 --rm --name externalstructureproxy externalstructureproxy bash
 
 server-compose-build:
-	docker-compose build
+	docker-compose --compatibility build
 
 server-compose-background:
-	docker-compose build
-	docker-compose up -d
+	docker-compose --compatibility build
+	docker-compose --compatibility up -d
 
 server-compose-interactive:
-	docker-compose build
-	docker-compose up
+	docker-compose --compatibility build
+	docker-compose --compatibility up
 
-server-compose-production-background:
-	docker-compose build
-	docker-compose -f docker-compose.yml -f docker-compose-production.yml up -d
+server-compose-production:
+	docker-compose --compatibility build
+	docker-compose -f docker-compose.yml -f docker-compose-production.yml --compatibility up -d
 
 server-compose-production-interactive:
 	docker-compose build
-	docker-compose -f docker-compose.yml -f docker-compose-production.yml up
+	docker-compose -f docker-compose.yml -f docker-compose-production.yml --compatibility up
 
 
 # Running tests equivalent to Github Actions
