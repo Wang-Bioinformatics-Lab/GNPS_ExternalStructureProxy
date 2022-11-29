@@ -6,10 +6,12 @@ services:
       - default
       - nginx-net
     environment:
-      VIRTUAL_HOST: gnps-external.ucsd.edu
-      VIRTUAL_PORT: 5010
-      LETSENCRYPT_HOST: gnps-external.ucsd.edu
-      LETSENCRYPT_EMAIL: miw023@ucsd.edu
+      #VIRTUAL_HOST: gnps-external.ucsd.edu
+      VIRTUAL_HOST: external.gnps2.org
+      VIRTUAL_PORT: 5000
+      #LETSENCRYPT_HOST: gnps-external.ucsd.edu
+      LETSENCRYPT_HOST: external.gnps2.org
+      LETSENCRYPT_EMAIL: mwang87@gmail.com
     command: /app/run_production_server.sh
 
 networks:
