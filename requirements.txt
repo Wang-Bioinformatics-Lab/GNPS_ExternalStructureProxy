@@ -3,7 +3,8 @@ gunicorn
 requests
 requests_cache
 pandas
-celery
+celery==5.0.5
+importlib-metadata==4.13.0
 redis
 tqdm
 werkzeug
