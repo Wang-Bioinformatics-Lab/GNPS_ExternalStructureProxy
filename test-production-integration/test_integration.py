@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 
-PRODUCTION_URL = "gnps-external.ucsd.edu"
+PRODUCTION_URL = "external.gnps2.org"
 
 def test_production():
     url = f"https://{PRODUCTION_URL}/heartbeat"
