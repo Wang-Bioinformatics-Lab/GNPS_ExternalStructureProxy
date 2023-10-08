@@ -7,7 +7,7 @@ services:
       - ./output:/output:rw
       - ./data:/app/data:ro
       - ./ftpproxy:/ftpproxy:rw
-      - ./database:/database:ro
+      - ./database:/app/database:ro
     restart: on-failure
     ports:
       - "5010:5000"
@@ -31,7 +31,7 @@ services:
     volumes:
         - ./output:/output:rw
         - ./data:/app/data:ro
-        - ./database:/database:rw
+        - ./database:/app/database:rw
     networks:
       - default
     restart: on-failure

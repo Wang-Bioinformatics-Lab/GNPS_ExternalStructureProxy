@@ -54,8 +54,10 @@ def task_updategnpslibrary(accession):
         # save the entry
         library_entry.save()
     except:
+        print("Creating new entry", accession)
+
         # this likely means it is not in the database
-        library_entry = LibraryEntry(libraryaccession=accession, libraryname=json_entry["library_membership"], libraryjson=_library_entry, librarysource="GNPS", lastupdate=now)
+        library_entry = LibraryEntry(libraryaccession=accession, libraryname=json_entry["spectruminfo"]["library_membership"], libraryjson=_library_entry, librarysource="GNPS", lastupdate=now)
 
         # save the entry
         library_entry.save()
