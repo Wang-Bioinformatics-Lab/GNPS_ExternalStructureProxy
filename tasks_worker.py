@@ -6,6 +6,9 @@ import uuid
 import requests
 import pandas as pd
 import utils
+import datetime
+import json
+
 from models import *
 
 from celery.signals import worker_ready
@@ -105,4 +108,5 @@ def get_gnps_by_structure_task(smiles, inchi, inchikey):
 
 celery_instance.conf.task_routes = {
     'tasks_worker.get_gnps_by_structure_task': {'queue': 'worker'},
+    'tasks_worker.task_updategnpslibrary': {'queue': 'worker'},
 }

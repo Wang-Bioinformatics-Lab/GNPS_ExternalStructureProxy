@@ -9,6 +9,7 @@ import requests
 import requests_cache
 import utils
 import pandas as pd
+import datetime
 
 from models import *
 from tasks_worker import task_updategnpslibrary
@@ -128,7 +129,7 @@ def get_mibig(smiles, inchi, inchikey):
     return BGCID
 
 
-from worker_tasks import get_gnps_by_structure_task
+#from tasks_worker import get_gnps_by_structure_task
 
 def get_gnps(smiles, inchi, inchikey):
     results = get_gnps_by_structure_task.delay(smiles, inchi, inchikey)
@@ -222,7 +223,7 @@ def gnpsspectrum():
         library_entry = LibraryEntry.get(LibraryEntry.libraryaccession == gnpsid)
     except:
         # this likely means it is not in the database, we should try to grab it for next time
-        task_updategnpslibrary(gnpsid)
+        task_updategnpslibrary.delay(gnpsid)
         abort(404)
 
     return library_entry.libraryjson
@@ -305,7 +306,7 @@ def json_download(library):
     return send_from_directory("/output", "{}.json".format(library))
 
 # Admin
-from gnps_tasks import generate_gnps_data
+from tasks_gnps import generate_gnps_data
 @app.route('/admin/updatelibraries', methods=['GET'])
 def updatelibraries():
     generate_gnps_data.delay()

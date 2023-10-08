@@ -4,7 +4,7 @@ import json
 import requests
 import utils
 import pandas as pd
-
+import datetime
 
 celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis', broker='pyamqp://guest@externalstructureproxy-rabbitmq/', )
 
