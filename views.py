@@ -2,7 +2,6 @@
 from flask import abort, jsonify, render_template, request, redirect, url_for, send_file, send_from_directory
 
 from app import app
-from app import cache
 
 import json
 import csv
@@ -11,7 +10,8 @@ import requests_cache
 import utils
 import pandas as pd
 
-requests_cache.install_cache('demo_cache')
+from models import *
+from tasks_worker import task_updategnpslibrary
 
 @app.route('/heartbeat', methods=['GET'])
 def heartbeat():
@@ -213,19 +213,19 @@ def metabolomicsworkbench():
 
     return json.dumps(filtered_datasets)
 
-
-### GNPS Spectral Library Delivery Endpoints that will be constantly updated
-@cache.memoize()
-def _get_gnps_spectrum(gnpsid):
-    r = requests.get("https://gnps.ucsd.edu/ProteoSAFe/SpectrumCommentServlet?SpectrumID={}".format(gnpsid))
-    r.raise_for_status()
-
-    return r.text
-
 @app.route('/gnpsspectrum', methods=['GET'])
 def gnpsspectrum():
     gnpsid = request.values.get("SpectrumID")
-    return _get_gnps_spectrum(gnpsid)
+
+    # we try to read from the database
+    try:
+        library_entry = LibraryEntry.get(LibraryEntry.libraryaccession == gnpsid)
+    except:
+        # this likely means it is not in the database, we should try to grab it for next time
+        task_updategnpslibrary(gnpsid)
+        abort(404)
+
+    return library_entry.libraryjson
 
 #Making it easy to query for all of GNPS library spectra
 @app.route('/gnpslibraryjson', methods=['GET'])

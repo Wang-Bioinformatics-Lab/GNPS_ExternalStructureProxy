@@ -5,7 +5,8 @@ import requests
 import utils
 import pandas as pd
 
-celery_instance = Celery('tasks', backend='rpc://externalstructureproxy-rabbitmq', broker='pyamqp://externalstructureproxy-rabbitmq')
+
+celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis', broker='pyamqp://guest@externalstructureproxy-rabbitmq/', )
 
 @celery_instance.task()
 def generate_gnps_data():
@@ -64,11 +65,11 @@ def generate_gnps_data():
 
 celery_instance.conf.beat_schedule = {
     "generate_gnps_data": {
-        "task": "gnps_tasks.generate_gnps_data",
+        "task": "tasks_gnps.generate_gnps_data",
         "schedule": 86400
     }
 }
 
 celery_instance.conf.task_routes = {
-    'gnps_tasks.generate_gnps_data': {'queue': 'beat_worker'},
+    'tasks_gnps.generate_gnps_data': {'queue': 'beat_worker'},
 }
