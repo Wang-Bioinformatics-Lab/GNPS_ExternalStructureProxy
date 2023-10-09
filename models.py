@@ -10,7 +10,7 @@ class LibraryEntry(Model):
     librarysource = TextField(index=True) # e.g. GNPS, Massbank, etc.
 
     # Last Update Time
-    lastupdate = DateTimeField()
+    lastupdate = TextField()
 
     class Meta:
         database = db

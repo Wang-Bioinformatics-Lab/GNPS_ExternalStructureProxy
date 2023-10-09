@@ -39,6 +39,9 @@ def task_updategnpslibrary(accession):
 
     # What time is it now
     now = datetime.datetime.now()
+    # making into string
+    now = now.strftime("%Y-%m-%d %H:%M:%S")
+
 
     _library_entry = _get_gnps_spectrum(accession)
     json_entry = json.loads(_library_entry)
@@ -54,10 +57,10 @@ def task_updategnpslibrary(accession):
         # save the entry
         library_entry.save()
     except:
-        print("Creating new entry", accession)
+        print("Creating new entry", accession, now)
 
         # this likely means it is not in the database
-        library_entry = LibraryEntry(libraryaccession=accession, libraryname=json_entry["spectruminfo"]["library_membership"], libraryjson=_library_entry, librarysource="GNPS", lastupdate=now)
+        library_entry = LibraryEntry.create(libraryaccession=accession, libraryname=json_entry["spectruminfo"]["library_membership"], libraryjson=_library_entry, librarysource="GNPS", lastupdate=now)
 
         # save the entry
         library_entry.save()

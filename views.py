@@ -224,10 +224,12 @@ def gnpsspectrum():
     except:
         # this likely means it is not in the database, we should try to grab it for next time
         task_updategnpslibrary.delay(gnpsid)
-                
+
+
         abort(404)
 
     return library_entry.libraryjson
+
 
 #Making it easy to query for all of GNPS library spectra
 @app.route('/gnpslibraryjson', methods=['GET'])
@@ -327,6 +329,10 @@ def gnps_cors():
     r = requests.get("https://gnps.ucsd.edu/{}".format(path), params=payload)
     
     return r.content, r.status_code
+
+@app.route('/admin/count', methods=['GET'])
+def admincount():
+    return str(LibraryEntry.select().count())
 
 # DEBUG OFF
 npatlas_list = utils.load_NPAtlas("data/npatlas.json")
