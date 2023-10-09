@@ -221,10 +221,22 @@ def gnpsspectrum():
     # we try to read from the database
     try:
         library_entry = LibraryEntry.get(LibraryEntry.libraryaccession == gnpsid)
+
+        # checking the current time
+        now = datetime.datetime.now()
+
+        # load the time from the entry
+        lastupdate = library_entry.lastupdate
+        # parse into datetime
+        lastupdate = datetime.datetime.strptime(lastupdate, "%Y-%m-%d %H:%M:%S")
+
+        # if the last update was more than 5 day ago, we should update it
+        #if (now - lastupdate).days > 5:
+        if (now - lastupdate).days > 0:
+            task_updategnpslibrary.delay(gnpsid)
     except:
         # this likely means it is not in the database, we should try to grab it for next time
         task_updategnpslibrary.delay(gnpsid)
-
 
         abort(404)
 
@@ -308,13 +320,6 @@ def msp_download(library):
 def json_download(library):
     return send_from_directory("/output", "{}.json".format(library))
 
-# Admin
-from tasks_gnps import generate_gnps_data
-@app.route('/admin/updatelibraries', methods=['GET'])
-def updatelibraries():
-    generate_gnps_data.delay()
-    return "Running"
-    
 # CORS for GNPS data
 @app.route('/gnpscors', methods=['GET'])
 def gnps_cors():
@@ -330,9 +335,18 @@ def gnps_cors():
     
     return r.content, r.status_code
 
+# Admin
+from tasks_gnps import generate_gnps_data
+@app.route('/admin/updatelibraries', methods=['GET'])
+def updatelibraries():
+    generate_gnps_data.delay()
+    return "Running"
+    
 @app.route('/admin/count', methods=['GET'])
 def admincount():
     return str(LibraryEntry.select().count())
+
+
 
 # DEBUG OFF
 npatlas_list = utils.load_NPAtlas("data/npatlas.json")
