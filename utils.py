@@ -8,11 +8,6 @@ import pandas as pd
 from rdkit import Chem
 from rdkit.Chem.rdMolDescriptors import CalcMolFormula
 
-## Caching Results for a specific amount of time
-if os.path.isdir("/output"):
-    import requests_cache
-    requests_cache.install_cache('/output/requests_cache', expire_after=592200) # one week cache
-
 library_df = pd.read_csv("library_names.tsv")
 LIBRARY_NAMES = list(library_df["library"])
 
@@ -76,28 +71,6 @@ def get_formula(smiles, inchi):
 
     return "", ""
 
-
-def load_NPAtlas(filepath):
-    print("Loading NPAtlas")
-    all_npatlas = json.load(open(filepath, encoding='utf-8', errors='strict'), strict=False)
-    print(len(all_npatlas))
-    return all_npatlas
-
-def load_mibig(filepath):
-    df = pd.read_csv(filepath, sep=",")
-
-    output_list = []
-    results_list = df.to_dict(orient="records")
-    for result in results_list:
-        inchikey_from_smiles, inchikey_from_inchi = get_inchikey(result["smiles"], "")
-
-        output_dict = {}
-        output_dict["BGCID"] = result["bgc id"]
-        output_dict["COMPOUND_INCHIKEY"] = inchikey_from_smiles
-
-        output_list.append(output_dict)
-
-    return output_list
 
 # Loads all GNPS libraries from GNPS servers and returns as python objects
 def load_GNPS(library_names=LIBRARY_NAMES):

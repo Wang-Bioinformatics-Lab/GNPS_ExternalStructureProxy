@@ -26,10 +26,10 @@ def generate_gnps_data():
         output_file.write(json.dumps(utils.gnps_filter_for_key(encriched_gnps_libraries, filterKeysOut=False)))
 
     #Outputting for NPAtlas
-    with open("/output/gnpslibraries_npatlas.json", "w") as output_file:
-        output_file.write(json.dumps(utils.gnps_filter_for_key(encriched_gnps_libraries, filterKeysOut=True)))
+    #with open("/output/gnpslibraries_npatlas.json", "w") as output_file:
+    #    output_file.write(json.dumps(utils.gnps_filter_for_key(encriched_gnps_libraries, filterKeysOut=True)))
 
-    pd.DataFrame(utils.gnps_filter_for_key(encriched_gnps_libraries)).to_csv("/output/gnpslibraries_npatlas.tsv", sep="\t", index=False)
+    #pd.DataFrame(utils.gnps_filter_for_key(encriched_gnps_libraries)).to_csv("/output/gnpslibraries_npatlas.tsv", sep="\t", index=False)
 
     print("NPAtlas Export Finished")
 
