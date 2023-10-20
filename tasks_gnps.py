@@ -4,8 +4,9 @@ import json
 import requests
 import utils
 import pandas as pd
+import datetime
 
-celery_instance = Celery('tasks', backend='rpc://externalstructureproxy-rabbitmq', broker='pyamqp://externalstructureproxy-rabbitmq')
+celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis', broker='pyamqp://guest@externalstructureproxy-rabbitmq/', )
 
 @celery_instance.task()
 def generate_gnps_data():
@@ -25,10 +26,10 @@ def generate_gnps_data():
         output_file.write(json.dumps(utils.gnps_filter_for_key(encriched_gnps_libraries, filterKeysOut=False)))
 
     #Outputting for NPAtlas
-    with open("/output/gnpslibraries_npatlas.json", "w") as output_file:
-        output_file.write(json.dumps(utils.gnps_filter_for_key(encriched_gnps_libraries, filterKeysOut=True)))
+    #with open("/output/gnpslibraries_npatlas.json", "w") as output_file:
+    #    output_file.write(json.dumps(utils.gnps_filter_for_key(encriched_gnps_libraries, filterKeysOut=True)))
 
-    pd.DataFrame(utils.gnps_filter_for_key(encriched_gnps_libraries)).to_csv("/output/gnpslibraries_npatlas.tsv", sep="\t", index=False)
+    #pd.DataFrame(utils.gnps_filter_for_key(encriched_gnps_libraries)).to_csv("/output/gnpslibraries_npatlas.tsv", sep="\t", index=False)
 
     print("NPAtlas Export Finished")
 
@@ -64,11 +65,11 @@ def generate_gnps_data():
 
 celery_instance.conf.beat_schedule = {
     "generate_gnps_data": {
-        "task": "gnps_tasks.generate_gnps_data",
+        "task": "tasks_gnps.generate_gnps_data",
         "schedule": 86400
     }
 }
 
 celery_instance.conf.task_routes = {
-    'gnps_tasks.generate_gnps_data': {'queue': 'beat_worker'},
+    'tasks_gnps.generate_gnps_data': {'queue': 'beat_worker'},
 }
