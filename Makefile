@@ -32,7 +32,3 @@ server-compose-production-interactive:
 	docker-compose build
 	docker-compose -f docker-compose.yml -f docker-compose-production.yml --compatibility up
 
-
-# Running tests equivalent to Github Actions
-test-integration:
-	act -j production-integration -P ubuntu-latest=nektos/act-environments-ubuntu:18.04 -b	

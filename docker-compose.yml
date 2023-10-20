@@ -6,7 +6,6 @@ services:
     volumes:
       - ./output:/output:rw
       - ./data:/app/data:ro
-      - ./ftpproxy:/ftpproxy:rw
       - ./database:/app/database:ro
     restart: on-failure
     ports:

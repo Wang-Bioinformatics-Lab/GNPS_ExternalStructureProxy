@@ -23,6 +23,10 @@ def onstart(**k):
 @celery_instance.task(time_limit=60)
 def task_computeheartbeat():
     print("UP", file=sys.stderr, flush=True)
+
+    # This is to warm everything up
+    LibraryEntry.get(LibraryEntry.libraryaccession == "CCMSLIB00000001547")
+
     return "Up"
 
 # Here we need to update the library entry for GNPS the library entry
@@ -70,4 +74,5 @@ def _get_gnps_spectrum(gnpsid):
 
 celery_instance.conf.task_routes = {
     'tasks_worker.task_updategnpslibrary': {'queue': 'worker'},
+    'tasks_worker.task_computeheartbeat': {'queue': 'worker'},
 }

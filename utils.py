@@ -162,24 +162,13 @@ def get_gnps_peaks(all_GNPS_list):
     for spectrum in tqdm(all_GNPS_list):
         new_spectrum = copy.deepcopy(spectrum)
         try:
-            #spectrum_peaks_url = "https://gnps.ucsd.edu/ProteoSAFe/SpectrumCommentServlet?SpectrumID={}".format(spectrum["spectrum_id"])
+            # We first try to get it locally
             spectrum_peaks_url = "http://externalstructureproxy-web:5000/gnpsspectrum?SpectrumID={}".format(spectrum["spectrum_id"])
             r = requests.get(spectrum_peaks_url)
             spectrum_json = r.json()
             new_spectrum["peaks_json"] = spectrum_json["spectruminfo"]["peaks_json"]
             new_spectrum["annotation_history"] = spectrum_json["annotations"]
             output_list.append(new_spectrum)
-
-            # Figuring out if we should throttle
-            try:
-                if r.from_cache is True:
-                    continue
-                else:
-                    # Sleeping to help throttle requests, at this rate it should take a few days to get all data
-                    time.sleep(0.1)
-            except:
-                # Sleeping to help throttle requests, at this rate it should take a few days to get all data
-                time.sleep(0.1)
 
         except KeyboardInterrupt:
             raise

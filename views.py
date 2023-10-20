@@ -5,6 +5,7 @@ from app import app
 
 import json
 import csv
+import os
 import requests
 import requests_cache
 import utils
@@ -12,16 +13,16 @@ import pandas as pd
 import datetime
 
 from models import *
-from tasks_worker import task_updategnpslibrary
+from tasks_worker import task_updategnpslibrary, task_computeheartbeat
+
+@app.route('/', methods=['GET'])
+def homepage():
+    # redirect to gnpslibrary
+    return redirect(url_for('gnpslibrary'))
 
 @app.route('/heartbeat', methods=['GET'])
 def heartbeat():
     return "{'status' : 'up'}"
-
-#from tasks_worker import get_gnps_by_structure_task
-def get_gnps(smiles, inchi, inchikey):
-    results = get_gnps_by_structure_task.delay(smiles, inchi, inchikey)
-    return results.get()
 
 
 @app.route('/gnpsspectrum', methods=['GET'])
@@ -71,6 +72,9 @@ def gnpslibraryformattedwithpeaksjson():
 # Download Page for Spectral Libraries
 @app.route('/gnpslibrary', methods=['GET'])
 def gnpslibrary():
+    # This is a test
+    task = task_computeheartbeat.delay()
+
     library_list = pd.read_csv("library_names.tsv").to_dict(orient="records")
 
     for library_dict in library_list:
@@ -99,8 +103,16 @@ def gnpslibrary():
     library_dict["jsonlink"] = "/gnpslibrary/{}.json".format(library_name)
     library_list.append(library_dict)
 
+    # We should check how many entries in our database
+    number_of_spectra = LibraryEntry.select().count()
 
-    return render_template('gnpslibrarylist.html', library_list=library_list)
+    # report when the last time we actually updated the GNPS exports
+    filename = "/output/ALL_GNPS.json"
+
+    # check the last modified date
+    last_modified = str(datetime.datetime.fromtimestamp(os.path.getmtime(filename)))
+
+    return render_template('gnpslibrarylist.html', library_list=library_list, number_of_spectra=number_of_spectra, last_modified=last_modified)
 
 
 # Library List
@@ -130,11 +142,7 @@ def updatelibraries():
     
 @app.route('/admin/count', methods=['GET'])
 def admincount():
+    # This is a test
+    task = task_computeheartbeat.delay()
+    
     return str(LibraryEntry.select().count())
-
-
-
-# DEBUG OFF
-npatlas_list = utils.load_NPAtlas("data/npatlas.json")
-mibig_list = utils.load_mibig("data/mibig.csv")
-
