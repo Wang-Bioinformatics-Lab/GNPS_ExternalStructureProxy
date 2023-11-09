@@ -10,6 +10,6 @@ tqdm
 Werkzeug==2.3.7
 Flask-Caching
 redis
-pyarrow==3.0.0
+pyarrow==14.0.1
 expiringdict
 peewee
