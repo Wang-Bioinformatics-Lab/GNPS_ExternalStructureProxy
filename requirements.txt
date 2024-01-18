@@ -7,7 +7,7 @@ celery==5.2.2
 importlib-metadata==4.13.0
 redis
 tqdm
-Werkzeug==2.3.7
+Werkzeug==3.0.1
 Flask-Caching
 redis
 pyarrow==3.0.0
