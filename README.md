@@ -36,3 +36,9 @@ This is accessible at
 ```
 
 [Test Link](https://gnps-external.ucsd.edu/massiveftpproxy?ftppath=ftp://massive.ucsd.edu/MSV000085699/peak/S6.mgf)
+
+## Local Deployment/Testing
+1. Run the server with `make-server-compose-interactive`
+2. Check the active ports (typically 5010, but can be seen in `docker ps`) and ensure they're forwarded if needed
+3. Web serivce is now live at [http://localhost:5010](http://localhost:5010)
+4. If starting for the first time, collect the GNPS libraries by visiting [http://localhost:5010](http://localhost:5010/admin/updatelibraries)
