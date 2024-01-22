@@ -60,13 +60,18 @@ def generate_gnps_data():
     # msp_string = utils.get_full_msp_string(encriched_gnps_libraries_with_peaks)
     # with open("/output/ALL_GNPS.msp", "wb") as output_file:
     #     output_file.write(msp_string.encode("ascii", "ignore"))
-
+    
+    #### MatchMS/ML Prep Pipeline ####
+    # Get url for all_gnps.json
+    gnps_json_url = os.path.join("/output/", "ALL_GNPS_NO_PROPOGATED.mgf")
+    # Pass to utils.run_matchms_pipeline
+    utils.run_matchms_pipeline(gnps_json_url, "/output/matchms_output/")
 
 
 celery_instance.conf.beat_schedule = {
     "generate_gnps_data": {
         "task": "tasks_gnps.generate_gnps_data",
-        "schedule": 86400
+        "schedule": 86400   # Every 24 hours
     }
 }
 

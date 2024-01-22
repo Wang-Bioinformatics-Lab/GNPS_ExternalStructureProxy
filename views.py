@@ -146,3 +146,36 @@ def admincount():
     task = task_computeheartbeat.delay()
     
     return str(LibraryEntry.select().count())
+
+@app.route('/admin/matchms_cleaning', methods=['GET'])
+def matchms_cleaning():
+    """
+    This API call is used to test the matchms cleaning pipeline in GNPS2
+    """
+    from utils import run_matchms_pipeline
+    import glob
+    
+    output_str = ""
+    
+    def _stat_files(output_str):
+        files =  glob.glob("/output/matchms_output/*")
+        if not files:
+            print("No files found in /output/matchms_output/", flush=True)
+            output_str += "No files found in /output/matchms_output/ \n"
+        for path in files:
+            print(path, os.stat(path))
+            output_str += "{} {}\n".format(path, os.stat(path))
+        return output_str
+    
+    print("Running stat on current files...", flush=True)
+    output_str += "Running stat on current files...\n"
+    output_str = _stat_files(output_str)
+    result = run_matchms_pipeline("/output/ALL_GNPS_NO_PROPOGATED.json", "/output/matchms_output/")
+    # Print the stat of the current output files
+    print("Running stat on new files...", flush=True)
+    output_str += "Running stat on new files...\n"
+    output_str = _stat_files(output_str)
+    
+    print(result, flush=True)
+    
+    return output_str

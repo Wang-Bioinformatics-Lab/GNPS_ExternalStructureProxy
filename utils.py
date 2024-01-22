@@ -2,7 +2,8 @@ import requests
 import json
 import os
 import sys
-import time 
+import time
+import subprocess 
 
 import pandas as pd
 from rdkit import Chem
@@ -327,8 +328,15 @@ def json_to_msp(json_spectrum):
     
     return msp_string
 
-
-
-
-
-
+def run_matchms_pipeline(gnps_json_file, output_directory):
+    """
+    
+    """
+    path_to_script = "./matchms/gnps_ml_processing_workflow/GNPS_ML_Processing/nf_workflow.nf"
+    # Use subprocess to run a nextflow script to generate all everything we need
+    result = subprocess.run(["/nextflow", "run", path_to_script,
+                    "--GNPS_json_path", gnps_json_file,
+                    "--output_dir", output_directory],
+                    capture_output = True,
+                    text = True)
+    return result
