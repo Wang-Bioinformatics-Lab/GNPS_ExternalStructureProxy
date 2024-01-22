@@ -1,0 +1,3 @@
+[submodule "matchms/gnps_ml_processing_workflow"]
+	path = matchms/gnps_ml_processing_workflow
+	url = https://github.com/Wang-Bioinformatics-Lab/gnps_ml_processing_workflow.git
