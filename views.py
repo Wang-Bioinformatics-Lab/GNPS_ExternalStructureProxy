@@ -114,11 +114,20 @@ def gnpslibrary():
     
     #### Preprocessed Data ####
     preprocessed_list = []
+    # MatchMS Cleaning
     library_dict = {}
     library_dict["libraryname"] = "ALL_GNPS_NO_PROPOGATED"
     library_dict["processingpipeline"] = 'GNPS Cleaning + MatchMS'
     library_dict["mgflink"] = "/processed_gnps_data/matchms.mgf"
+    library_dict["jsonlink"] = None
+    preprocessed_list.append(library_dict)
     
+    # GNPS Cleaning
+    library_dict = {}
+    library_dict["libraryname"] = "ALL_GNPS_NO_PROPOGATED"
+    library_dict["processingpipeline"] = 'GNPS Cleaning'
+    library_dict["mgflink"] = "/processed_gnps_data/gnps_cleaned.mgf"
+    library_dict["jsonlink"] = "/processed_gnps_data/gnps_cleaned.json"
     preprocessed_list.append(library_dict)
     
     ####    ####
@@ -153,6 +162,14 @@ def json_download(library):
 @app.route('/processed_gnps_data/matchms.mgf', methods=['GET']) # TODO: No parameters for now 
 def processed_gnps_data_mgf_download():
     return send_from_directory("/output/cleaned_data/matchms_output", "cleaned_spectra.mgf")
+
+@app.route('/processed_gnps_data/gnps_cleaned.mgf', methods=['GET']) # TODO: No parameters for now
+def processed_gnps_data_gnps_cleaned_mgf_download():
+    return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned.mgf")
+
+@app.route('/processed_gnps_data/gnps_cleaned.json', methods=['GET']) # TODO: No parameters for now
+def processed_gnps_data_gnps_cleaned_json_download():
+    return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned.json")
 
 # Admin
 from tasks_gnps import generate_gnps_data
