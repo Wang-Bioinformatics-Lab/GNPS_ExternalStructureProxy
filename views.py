@@ -111,8 +111,23 @@ def gnpslibrary():
 
     # check the last modified date
     last_modified = str(datetime.datetime.fromtimestamp(os.path.getmtime(filename)))
-
-    return render_template('gnpslibrarylist.html', library_list=library_list, number_of_spectra=number_of_spectra, last_modified=last_modified)
+    
+    #### Preprocessed Data ####
+    preprocessed_list = []
+    library_dict = {}
+    library_dict["libraryname"] = "ALL_GNPS_NO_PROPOGATED"
+    library_dict["processingpipeline"] = 'GNPS Cleaning + MatchMS'
+    library_dict["mgflink"] = "/processed_gnps_data/matchms.mgf"
+    
+    preprocessed_list.append(library_dict)
+    
+    ####    ####
+    
+    return render_template('gnpslibrarylist.html',
+                           library_list=library_list,
+                           number_of_spectra=number_of_spectra,
+                           last_modified=last_modified,
+                           preprocessed_list=preprocessed_list)
 
 
 # Library List
@@ -133,6 +148,12 @@ def msp_download(library):
 def json_download(library):
     return send_from_directory("/output", "{}.json".format(library))
 
+# Preprocessed Data List
+# TODO: Create a endpoint for list of preprocessed data
+@app.route('/processed_gnps_data/matchms.mgf', methods=['GET']) # TODO: No parameters for now 
+def processed_gnps_data_mgf_download():
+    return send_from_directory("/output/cleaned_data/matchms_output", "cleaned_spectra.mgf")
+
 # Admin
 from tasks_gnps import generate_gnps_data
 @app.route('/admin/updatelibraries', methods=['GET'])
@@ -152,30 +173,8 @@ def matchms_cleaning():
     """
     This API call is used to test the matchms cleaning pipeline in GNPS2
     """
-    from utils import run_matchms_pipeline
-    import glob
-    
-    output_str = ""
-    
-    def _stat_files(output_str):
-        files =  glob.glob("/output/matchms_output/*")
-        if not files:
-            print("No files found in /output/matchms_output/", flush=True)
-            output_str += "No files found in /output/matchms_output/ \n"
-        for path in files:
-            print(path, os.stat(path))
-            output_str += "{} {}\n".format(path, os.stat(path))
-        return output_str
-    
-    print("Running stat on current files...", flush=True)
-    output_str += "Running stat on current files...\n"
-    output_str = _stat_files(output_str)
-    result = run_matchms_pipeline("/output/ALL_GNPS_NO_PROPOGATED.json", "/output/matchms_output/")
-    # Print the stat of the current output files
-    print("Running stat on new files...", flush=True)
-    output_str += "Running stat on new files...\n"
-    output_str = _stat_files(output_str)
-    
-    print(result, flush=True)
-    
-    return output_str
+    from tasks_gnps import run_matchms_pipeline
+    result = run_matchms_pipeline.delay()
+    print("Running matchms cleaning pipeline, result:", result, flush=True)
+    return "Running matchms cleaning pipeline"
+
