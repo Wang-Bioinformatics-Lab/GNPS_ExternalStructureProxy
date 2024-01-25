@@ -17,6 +17,7 @@ services:
     container_name: externalstructureproxy-beat1
     volumes:
         - ./output:/output:rw
+        - /home/user/LabData/GNPS_Library_Provenance:/home/user/LabData/GNPS_Library_Provenance:ro
     networks:
       - default
     restart: on-failure
