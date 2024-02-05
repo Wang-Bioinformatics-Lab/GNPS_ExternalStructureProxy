@@ -64,7 +64,7 @@ def generate_gnps_data():
     #### MatchMS/ML Prep Pipeline ####
     run_matchms_pipeline.delay()
 
-@celery_instance.task()
+@celery_instance.task(time_limit=43200) #12 Hour Timeout
 def run_matchms_pipeline():
     import glob
     
