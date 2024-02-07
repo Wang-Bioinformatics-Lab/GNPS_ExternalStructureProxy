@@ -118,6 +118,7 @@ def gnpslibrary():
     library_dict = {}
     library_dict["libraryname"] = "ALL_GNPS_NO_PROPOGATED"
     library_dict["processingpipeline"] = 'GNPS Cleaning + MatchMS'
+    library_dict["csvlink"] = None
     library_dict["mgflink"] = "/processed_gnps_data/matchms.mgf"
     library_dict["jsonlink"] = None
     preprocessed_list.append(library_dict)

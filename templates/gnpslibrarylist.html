@@ -135,6 +135,9 @@
                         <td>{{processed_dict.libraryname}}</td>
                         <td>{{processed_dict.processingpipeline}}</td>
                         <td>
+                            <download-linkout :url=processed_dict.csvlink :libraryname=processed_dict.libraryname></gnps-linkout>
+                        </td>
+                        <td>
                             <download-linkout :url=processed_dict.mgflink :libraryname=processed_dict.libraryname></gnps-linkout>
                         </td>
                         <td>
