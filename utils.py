@@ -336,6 +336,15 @@ def run_matchms_pipeline(gnps_json_file, output_directory):
     if not os.path.isdir(output_directory):
         os.makedirs(output_directory, exist_ok=True)
     timestamp = time.strftime("%Y%m%d%H%M%S", time.gmtime())
+    
+    # Keep only four previous reports
+    files = os.listdir(output_directory)
+    files = [f for f in files if f.startswith("nf_report_") and f.endswith(".html")]
+    files.sort(key=lambda x: os.path.getmtime(os.path.join(output_directory, x)))
+    files = files[:-4]
+    for file in files:
+        os.remove(os.path.join(output_directory, file))
+    
     report_path = os.path.join(output_directory, f"nf_report_{timestamp}.html")
     # Use subprocess to run a nextflow script to generate all everything we need
     result = subprocess.run(["/nextflow", "run", path_to_script,
