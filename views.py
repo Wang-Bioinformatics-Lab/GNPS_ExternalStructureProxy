@@ -202,7 +202,7 @@ def matchms_cleaning():
     return "Running matchms cleaning pipeline"
 
 @app.route('/admin/download_cleaning_report', methods=['GET']) # TODO: No parameters for now
-def processed_gnps_data_gnps_cleaned_json_download():
+def download_matchms_cleaning_report():
     # Get all files in /output/cleaned_dara/nf_report_*.html
     files = os.listdir("/output/cleaned_data")
     files = [f for f in files if f.startswith("nf_report_") and f.endswith(".html")]
