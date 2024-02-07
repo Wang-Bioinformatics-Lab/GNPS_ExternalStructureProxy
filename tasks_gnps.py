@@ -60,16 +60,52 @@ def generate_gnps_data():
     # msp_string = utils.get_full_msp_string(encriched_gnps_libraries_with_peaks)
     # with open("/output/ALL_GNPS.msp", "wb") as output_file:
     #     output_file.write(msp_string.encode("ascii", "ignore"))
+    
+    #### MatchMS/ML Prep Pipeline ####
+    run_matchms_pipeline.delay()
 
-
+@celery_instance.task(time_limit=43200) #12 Hour Timeout
+def run_matchms_pipeline():
+    import glob
+    
+    output_str = ""
+    
+    def _stat_files(output_str):
+        files =  glob.glob("/output/cleaned_data/*")
+        if not files:
+            print("No files found in /output/cleaned_data/", flush=True)
+            output_str += "No files found in /output/cleaned_data/ \n"
+        for path in files:
+            print(path, os.stat(path))
+            output_str += "{} {}\n".format(path, os.stat(path))
+        return output_str
+    
+    if os.path.exists("/home/user/LabData/GNPS_Library_Provenance/"):
+        print("Beat worker has access to the GNPS_Library_Provenance", flush=True)
+    else:
+        raise ValueError("Beat worker does not have access to the GNPS_Library_Provenance")
+    
+    print("Running stat on current files...", flush=True)
+    output_str += "Running stat on current files...\n"
+    output_str = _stat_files(output_str)
+    result = utils.run_matchms_pipeline("/output/ALL_GNPS_NO_PROPOGATED.json", "/output/cleaned_data/")
+    # Print the stat of the current output files
+    print("Running stat on new files...", flush=True)
+    output_str += "Running stat on new files...\n"
+    output_str = _stat_files(output_str)
+    
+    print(result, flush=True)
+    
+    return output_str
 
 celery_instance.conf.beat_schedule = {
     "generate_gnps_data": {
         "task": "tasks_gnps.generate_gnps_data",
-        "schedule": 86400
+        "schedule": 86400   # Every 24 hours
     }
 }
 
 celery_instance.conf.task_routes = {
     'tasks_gnps.generate_gnps_data': {'queue': 'beat_worker'},
+    'tasks_gnps.run_matchms_pipeline': {'queue': 'beat_worker'},
 }

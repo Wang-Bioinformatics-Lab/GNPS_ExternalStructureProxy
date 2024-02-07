@@ -97,24 +97,78 @@
             <br>
             AGGREGATED indicates aggregations of different sets of collections of libraries.
         </div>
+        
+        <hr>
+
+        <div class="col-sm text-center">
+            <h2>Preprocessed Data</h2>
+        </div>
+        <div style="">
+            <p>
+                Preprocessed data is data that has been filtered by our machine learning preperation and the matchms pipelines.
+            </p>
+            <p>
+                For more details about the MatchMS cleaning pipeline see <a href="https://chemrxiv.org/engage/chemrxiv/article-details/6560c5e629a13c4d47e66013">here</a>.
+            </p>
+        </div>
+
+        <div style="">
+            <table class="table table-sm table-striped">
+                <thead>
+                  <tr>
+                    <th>
+                        Dataset Name
+                    </th>
+                    <th>
+                        Processing Pipeline
+                    </th>
+                    <th>
+                        CSV Download
+                    </th>
+                    <th>
+                        MGF Download
+                    </th>
+                    <th>
+                        JSON Download
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="processed_dict in preprocessed_list">
+                        <td>{{processed_dict.libraryname}}</td>
+                        <td>{{processed_dict.processingpipeline}}</td>
+                        <td>
+                            <download-linkout :url=processed_dict.csvlink :libraryname=processed_dict.libraryname></gnps-linkout>
+                        </td>
+                        <td>
+                            <download-linkout :url=processed_dict.mgflink :libraryname=processed_dict.libraryname></gnps-linkout>
+                        </td>
+                        <td>
+                            <download-linkout :url=processed_dict.jsonlink :libraryname=processed_dict.libraryname></gnps-linkout>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
 
     Vue.component('download-linkout', {
-            props: ['libraryname', 'url'],
-            data: function() {
-                return {}
-            },
-            methods: {},
-            template: '<a :href=url> Download </a>'
-        })
+        props: ['libraryname', 'url'],
+        data: function() {
+            return {}
+        },
+        methods: {},
+        template: '<a v-if="url" :href="url">Download</a><span v-else>N/A</span>'
+    })
 
     var app4 = new Vue({
         el: '#app-4',
         methods: {},
         data: {
-            library_list : ((library_list|tojson))
+            library_list : ((library_list|tojson)),
+            preprocessed_list : ((preprocessed_list|tojson))
         }
     })
     </script>
