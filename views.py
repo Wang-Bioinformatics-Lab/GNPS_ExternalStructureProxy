@@ -126,6 +126,7 @@ def gnpslibrary():
     library_dict = {}
     library_dict["libraryname"] = "ALL_GNPS_NO_PROPOGATED"
     library_dict["processingpipeline"] = 'GNPS Cleaning'
+    library_dict["csvlink"] = "/processed_gnps_data/gnps_cleaned.csv"
     library_dict["mgflink"] = "/processed_gnps_data/gnps_cleaned.mgf"
     library_dict["jsonlink"] = "/processed_gnps_data/gnps_cleaned.json"
     preprocessed_list.append(library_dict)
@@ -163,13 +164,17 @@ def json_download(library):
 def processed_gnps_data_mgf_download():
     return send_from_directory("/output/cleaned_data/matchms_output", "cleaned_spectra.mgf")
 
+@app.route('/processed_gnps_data/gnps_cleaned.csv', methods=['GET']) # TODO: No parameters for now
+def processed_gnps_data_gnps_cleaned_csv_download():
+    return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned.csv")
+
 @app.route('/processed_gnps_data/gnps_cleaned.mgf', methods=['GET']) # TODO: No parameters for now
 def processed_gnps_data_gnps_cleaned_mgf_download():
     return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned.mgf")
 
 @app.route('/processed_gnps_data/gnps_cleaned.json', methods=['GET']) # TODO: No parameters for now
 def processed_gnps_data_gnps_cleaned_json_download():
-    return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned.json")
+    return send_from_directory("/output/cleaned_data/json_ouputs", "ALL_GNPS_cleaned.json")
 
 # Admin
 from tasks_gnps import generate_gnps_data
@@ -195,3 +200,13 @@ def matchms_cleaning():
     print("Running matchms cleaning pipeline, result:", result, flush=True)
     return "Running matchms cleaning pipeline"
 
+@app.route('/admin/download_cleaning_report', methods=['GET']) # TODO: No parameters for now
+def processed_gnps_data_gnps_cleaned_json_download():
+    # Get all files in /output/cleaned_dara/nf_report_*.html
+    files = os.listdir("/output/cleaned_data")
+    files = [f for f in files if f.startswith("nf_report_") and f.endswith(".html")]
+    # Get most recent
+    files.sort(key=lambda x: os.path.getmtime(os.path.join("/output/cleaned_data", x)))
+    most_recent = files[-1]
+    
+    return send_from_directory("/output/cleaned_data", most_recent)
