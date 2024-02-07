@@ -8,6 +8,9 @@ ENV CONDA_DIR /opt/conda
 RUN wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh -O ~/miniforge.sh && /bin/bash ~/miniforge.sh -b -p /opt/conda
 ENV PATH=$CONDA_DIR/bin:$PATH
 
+# Set RabbitMQ consumer timeout
+ENV RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS="-rabbit consumer_timeout 36000000"
+
 # Install git, requirement for HMDB integration into matchms workflow
 RUN apt install -y git
 
