@@ -175,7 +175,7 @@ def processed_gnps_data_gnps_cleaned_mgf_download():
 
 @app.route('/processed_gnps_data/gnps_cleaned.json', methods=['GET']) # TODO: No parameters for now
 def processed_gnps_data_gnps_cleaned_json_download():
-    return send_from_directory("/output/cleaned_data/json_ouputs", "ALL_GNPS_cleaned.json")
+    return send_from_directory("/output/cleaned_data/json_outputs", "ALL_GNPS_cleaned.json")
 
 # Admin
 from tasks_gnps import generate_gnps_data
