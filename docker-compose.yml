@@ -7,7 +7,7 @@ services:
       - ./output:/output:rw
       - ./data:/app/data:ro
       - ./database:/app/database:ro
-    restart: on-failure
+    restart: always
     ports:
       - "5010:5000"
     command: /app/run_server.sh
@@ -20,7 +20,7 @@ services:
         - /home/user/LabData/GNPS_Library_Provenance:/home/user/LabData/GNPS_Library_Provenance:ro
     networks:
       - default
-    restart: on-failure
+    restart: always
     command: /app/run_beat.sh
     depends_on: 
       - externalstructureproxy-rabbitmq
@@ -34,7 +34,7 @@ services:
         - ./database:/app/database:rw
     networks:
       - default
-    restart: on-failure
+    restart: always
     command: /app/run_worker.sh
     depends_on: 
       - externalstructureproxy-rabbitmq
@@ -50,7 +50,7 @@ services:
     - ./redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       - default
-    restart: on-failure
+    restart: always
     command: redis-server /usr/local/etc/redis/redis.conf
 
 networks:
