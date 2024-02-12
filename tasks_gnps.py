@@ -67,7 +67,8 @@ def generate_gnps_data():
 @celery_instance.task(time_limit=43200) #12 Hour Timeout
 def run_matchms_pipeline():
     utils.run_matchms_pipeline("/output/ALL_GNPS_NO_PROPOGATED.json", "/output/cleaned_data/")
-    return "Running matchms cleaning pipeline"
+    
+    return "Finished matchms cleaning pipeline"
 
 celery_instance.conf.beat_schedule = {
     "generate_gnps_data": {
