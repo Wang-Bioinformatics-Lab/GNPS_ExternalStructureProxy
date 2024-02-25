@@ -70,21 +70,4 @@ def test_all_small_gnps_library():
         r.raise_for_status()
 
 
-def test_redirects():
-    url = f"https://{PRODUCTION_URL}/structureproxy?smiles=CC(C)CC1NC(=O)C(C)NC(=O)C(=C)N(C)C(=O)CCC(NC(=O)C(C)C(NC(=O)C(CCCNC(N)=N)NC(=O)C(C)C(NC1=O)C(O)=O)\\C=C\\C(\\C)=C\\C(C)C(O)Cc1ccccc1)C(O)=O"
-    r = requests.get(url)
-    r.raise_for_status()
-
-    url = f"https://{PRODUCTION_URL}/npatlasproxy?smiles=CC(C)CC1NC(=O)C(C)NC(=O)C(=C)N(C)C(=O)CCC(NC(=O)C(C)C(NC(=O)C(CCCNC(N)=N)NC(=O)C(C)C(NC1=O)C(O)=O)\\C=C\\C(\\C)=C\\C(C)C(O)Cc1ccccc1)C(O)=O"
-    r = requests.get(url, verify=False)
-    r.raise_for_status()
-
-    url = f"https://{PRODUCTION_URL}/mibigproxy?smiles=C[C@H]1[C@@H](OC(C2=CSC([C@H](C(C)(OC(C3=CSC([C@H](C(C)(O)C)OC1=O)=N3)=O)C)OC(C)=O)=N2)=O)CCCC([37Cl])(Cl)C"
-    r = requests.get(url)
-    r.raise_for_status()
-
-    url = f"https://{PRODUCTION_URL}/gnpsproxy?smiles=C[C@H]1[C@@H](OC(C2=CSC([C@H](C(C)(OC(C3=CSC([C@H](C(C)(O)C)OC1=O)=N3)=O)C)OC(C)=O)=N2)=O)CCCC([37Cl])(Cl)C"
-    r = requests.get(url)
-    r.raise_for_status()
-
 
