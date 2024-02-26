@@ -350,6 +350,8 @@ def run_matchms_pipeline(gnps_json_file, output_directory):
     result = subprocess.run(["/nextflow", "run", path_to_script,
                             "--GNPS_json_path", gnps_json_file,
                             "--output_dir", output_directory,
+                            "--conda_path", os.path.join(output_directory, "gnps2_ml_processing_env"),
+                            "--matchms_conda_path", os.path.join(output_directory, "matchms_env"),
                             "-with-report", report_path],
                             capture_output=True,
                             text=True)
