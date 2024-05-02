@@ -61,6 +61,9 @@
                         Library Type
                     </th>
                     <th>
+                        Browse at GNPS
+                    </th>
+                    <th>
                         MGF Download
                     </th>
                     <th>
@@ -75,6 +78,10 @@
                     <tr v-for="library_dict in library_list">
                         <td>{{library_dict.libraryname}}</td>
                         <td>{{library_dict.type}}</td>
+                        <td>
+                            <!-- hyperlink -->
+                            <a href="https://gnps.ucsd.edu/ProteoSAFe/gnpslibrary.jsp?library={{library_dict.libraryname}}">Browse</a>
+                        </td>
                         <td>
                             <download-linkout :url=library_dict.mgflink :libraryname=library_dict.libraryname></gnps-linkout>
                         </td>
