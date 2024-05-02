@@ -84,6 +84,7 @@ def gnpslibrary():
         library_dict["mgflink"] = "/gnpslibrary/{}.mgf".format(library_name)
         library_dict["msplink"] = "/gnpslibrary/{}.msp".format(library_name)
         library_dict["jsonlink"] = "/gnpslibrary/{}.json".format(library_name)
+        library_dict["browselink"] = "https://gnps.ucsd.edu/ProteoSAFe/gnpslibrary.jsp?library={}".format(library_name)
 
     library_name = "ALL_GNPS"
     library_dict = {}
@@ -92,6 +93,7 @@ def gnpslibrary():
     library_dict["mgflink"] = "/gnpslibrary/{}.mgf".format(library_name)
     library_dict["msplink"] = "/gnpslibrary/{}.msp".format(library_name)
     library_dict["jsonlink"] = "/gnpslibrary/{}.json".format(library_name)
+    library_dict["browselink"] = "https://library.gnps2.org/"
     library_list.append(library_dict)
 
     library_name = "ALL_GNPS_NO_PROPOGATED"
@@ -101,6 +103,7 @@ def gnpslibrary():
     library_dict["mgflink"] = "/gnpslibrary/{}.mgf".format(library_name)
     library_dict["msplink"] = "/gnpslibrary/{}.msp".format(library_name)
     library_dict["jsonlink"] = "/gnpslibrary/{}.json".format(library_name)
+    library_dict["browselink"] = "https://library.gnps2.org/"
     library_list.append(library_dict)
 
     # We should check how many entries in our database
