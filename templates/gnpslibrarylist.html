@@ -61,6 +61,9 @@
                         Library Type
                     </th>
                     <th>
+                        Browse at GNPS
+                    </th>
+                    <th>
                         MGF Download
                     </th>
                     <th>
@@ -75,6 +78,9 @@
                     <tr v-for="library_dict in library_list">
                         <td>{{library_dict.libraryname}}</td>
                         <td>{{library_dict.type}}</td>
+                        <td>
+                            <browse-linkout :url=library_dict.browselink :libraryname=library_dict.libraryname></gnps-linkout>
+                        </td>
                         <td>
                             <download-linkout :url=library_dict.mgflink :libraryname=library_dict.libraryname></gnps-linkout>
                         </td>
@@ -105,10 +111,7 @@
         </div>
         <div style="">
             <p>
-                Preprocessed data is data that has been filtered by our machine learning preperation and the matchms pipelines. Versioned, citable archives of the data are available for download at <a href="https://zenodo.org/records/10724907">Zenodo</a>.
-            </p>
-            <p>
-                For more details about the MatchMS cleaning pipeline see <a href="https://chemrxiv.org/engage/chemrxiv/article-details/6560c5e629a13c4d47e66013">here</a>.
+                Preprocessed data is data that has been filtered by our machine learning preperation and the matchms pipelines. Versioned, citable archives of the data are available for download at <a href="https://zenodo.org/records/11193898">Zenodo</a>.
             </p>
         </div>
 
@@ -161,6 +164,16 @@
         },
         methods: {},
         template: '<a v-if="url" :href="url">Download</a><span v-else>N/A</span>'
+    })
+
+    // Adding Browse Linkout
+    Vue.component('browse-linkout', {
+        props: ['libraryname', 'url'],
+        data: function() {
+            return {}
+        },
+        methods: {},
+        template: '<a v-if="url" :href="url">Browse</a><span v-else>N/A</span>'
     })
 
     var app4 = new Vue({
