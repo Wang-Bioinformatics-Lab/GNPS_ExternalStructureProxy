@@ -84,6 +84,7 @@ def gnpslibrary():
         library_dict["mgflink"] = "/gnpslibrary/{}.mgf".format(library_name)
         library_dict["msplink"] = "/gnpslibrary/{}.msp".format(library_name)
         library_dict["jsonlink"] = "/gnpslibrary/{}.json".format(library_name)
+        library_dict["browselink"] = "https://gnps.ucsd.edu/ProteoSAFe/gnpslibrary.jsp?library={}".format(library_name)
 
     library_name = "ALL_GNPS"
     library_dict = {}
@@ -92,6 +93,7 @@ def gnpslibrary():
     library_dict["mgflink"] = "/gnpslibrary/{}.mgf".format(library_name)
     library_dict["msplink"] = "/gnpslibrary/{}.msp".format(library_name)
     library_dict["jsonlink"] = "/gnpslibrary/{}.json".format(library_name)
+    library_dict["browselink"] = "https://library.gnps2.org/"
     library_list.append(library_dict)
 
     library_name = "ALL_GNPS_NO_PROPOGATED"
@@ -101,6 +103,7 @@ def gnpslibrary():
     library_dict["mgflink"] = "/gnpslibrary/{}.mgf".format(library_name)
     library_dict["msplink"] = "/gnpslibrary/{}.msp".format(library_name)
     library_dict["jsonlink"] = "/gnpslibrary/{}.json".format(library_name)
+    library_dict["browselink"] = "https://library.gnps2.org/"
     library_list.append(library_dict)
 
     # We should check how many entries in our database
@@ -114,14 +117,6 @@ def gnpslibrary():
     
     #### Preprocessed Data ####
     preprocessed_list = []
-    # MatchMS Cleaning
-    library_dict = {}
-    library_dict["libraryname"] = "ALL_GNPS_NO_PROPOGATED"
-    library_dict["processingpipeline"] = 'GNPS Cleaning + MatchMS'
-    library_dict["csvlink"] = None
-    library_dict["mgflink"] = "/processed_gnps_data/matchms.mgf"
-    library_dict["jsonlink"] = None
-    preprocessed_list.append(library_dict)
     
     # GNPS Cleaning
     library_dict = {}
@@ -130,6 +125,15 @@ def gnpslibrary():
     library_dict["csvlink"] = "/processed_gnps_data/gnps_cleaned.csv"
     library_dict["mgflink"] = "/processed_gnps_data/gnps_cleaned.mgf"
     library_dict["jsonlink"] = "/processed_gnps_data/gnps_cleaned.json"
+    preprocessed_list.append(library_dict)
+
+    # MatchMS Cleaning
+    library_dict = {}
+    library_dict["libraryname"] = "ALL_GNPS_NO_PROPOGATED"
+    library_dict["processingpipeline"] = 'GNPS Cleaning + MatchMS'
+    library_dict["csvlink"] = None
+    library_dict["mgflink"] = "/processed_gnps_data/matchms.mgf"
+    library_dict["jsonlink"] = None
     preprocessed_list.append(library_dict)
     
     ####    ####

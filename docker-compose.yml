@@ -43,6 +43,7 @@ services:
     image: rabbitmq:latest
     networks:
       - default
+    restart: always
 
   externalstructureproxy-redis:
     image: redis:latest
