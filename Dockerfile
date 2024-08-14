@@ -32,11 +32,16 @@ RUN echo "export PATH=$CONDA_DIR:$PATH" >> ~/.bashrc
 RUN echo "export PATH=/nextflow:$PATH" >> ~/.bashrc
 ENV PATH=/nextflow:$PATH
 
+# Creating env
 RUN mamba create -n rdkit -c rdkit rdkit=2019.09.3.0
+RUN mamba create -n web python=3.9
 
+# Installing RDkit
 COPY requirements.txt /
-
 RUN /bin/bash -c ". activate rdkit && pip install -r requirements.txt"
+
+# Installing web server
+RUN /bin/bash -c ". activate web && pip install -r requirements.txt"
 
 
 COPY . /app

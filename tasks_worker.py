@@ -17,7 +17,6 @@ celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis'
 
 @worker_ready.connect
 def onstart(**k):
-
     print("On Start, doing nothing now", file=sys.stderr, flush=True)
 
 @celery_instance.task(time_limit=60)

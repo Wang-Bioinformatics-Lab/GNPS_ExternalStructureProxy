@@ -6,8 +6,11 @@ import time
 import subprocess 
 
 import pandas as pd
-from rdkit import Chem
-from rdkit.Chem.rdMolDescriptors import CalcMolFormula
+try:
+    from rdkit import Chem
+    from rdkit.Chem.rdMolDescriptors import CalcMolFormula
+except:
+    pass
 
 library_df = pd.read_csv("library_names.tsv")
 LIBRARY_NAMES = list(library_df["library"])
@@ -79,8 +82,12 @@ def load_GNPS(library_names=LIBRARY_NAMES):
 
     for library_name in library_names:
         print(library_name)
-        url = "https://gnps.ucsd.edu/ProteoSAFe/LibraryServlet?library=%s" % (library_name)
-        all_GNPS_list += requests.get(url).json()["spectra"]
+        try:
+            url = "https://gnps.ucsd.edu/ProteoSAFe/LibraryServlet?library=%s" % (library_name)
+            all_GNPS_list += requests.get(url).json()["spectra"]
+        except:
+            print("Error with", library_name, url)
+            continue
 
     return all_GNPS_list, library_df
 
@@ -104,6 +111,7 @@ def gnps_format_libraries(all_GNPS_list):
             if "InChI=" not in inchi and len(inchi) > 10:
                 inchi = "InChI=" + inchi
 
+            # TODO: We gotta fix this and also just get rid of rdkit from the dependencies
             inchikey_from_smiles, inchikey_from_inchi = get_inchikey(smiles, inchi)
             formula_from_smiles, formula_from_inchi = get_formula(smiles, inchi)
 

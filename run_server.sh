@@ -1,2 +1,2 @@
 #!/bin/bash
-source activate rdkit && python3 ./main.py
+source activate web && python3 ./main.py
