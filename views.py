@@ -207,11 +207,4 @@ def matchms_cleaning():
 
 @app.route('/admin/download_cleaning_report', methods=['GET']) # TODO: No parameters for now
 def download_matchms_cleaning_report():
-    # Get all files in /output/cleaned_dara/nf_report_*.html
-    files = os.listdir("/output/cleaned_data")
-    files = [f for f in files if f.startswith("nf_report_") and f.endswith(".html")]
-    # Get most recent
-    files.sort(key=lambda x: os.path.getmtime(os.path.join("/output/cleaned_data", x)))
-    most_recent = files[-1]
-    
-    return send_from_directory("/output/cleaned_data", most_recent)
+    return send_from_directory("/output/cleaned_data/ml_pipeline_report.html")
