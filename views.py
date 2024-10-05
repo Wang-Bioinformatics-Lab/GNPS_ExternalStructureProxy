@@ -195,16 +195,16 @@ def admincount():
     
     return str(LibraryEntry.select().count())
 
-@app.route('/admin/matchms_cleaning', methods=['GET'])
-def matchms_cleaning():
+@app.route('/admin/run_pipelines', methods=['GET'])
+def run_pipelines():
     """
     This API call is used to test the matchms cleaning pipeline in GNPS2
     """
-    from tasks_gnps import run_matchms_pipeline
-    result = run_matchms_pipeline.delay()
-    print("Running matchms cleaning pipeline, result:", result, flush=True)
-    return "Running matchms cleaning pipeline"
+    from tasks_gnps import run_cleaning_pipeline
+    result = run_cleaning_pipeline.delay()
+    print("Running  cleaning pipeline, result:", result, flush=True)
+    return "Running  cleaning pipeline"
 
 @app.route('/admin/download_cleaning_report', methods=['GET']) # TODO: No parameters for now
-def download_matchms_cleaning_report():
-    return send_from_directory("/output/cleaned_data/ml_pipeline_report.html")
+def download_cleaning_report():
+    return send_from_directory(directory="/output/cleaned_data/", path="ml_pipeline_report.html")

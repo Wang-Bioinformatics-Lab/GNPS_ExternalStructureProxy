@@ -336,7 +336,7 @@ def json_to_msp(json_spectrum):
     
     return msp_string
 
-def run_matchms_pipeline(gnps_json_file, output_directory):
+def run_cleaning_pipeline(gnps_json_file, output_directory):
     """
     
     """
@@ -352,4 +352,5 @@ def run_matchms_pipeline(gnps_json_file, output_directory):
                             "--matchms_conda_path", os.path.join(output_directory, "matchms_env")],
                             capture_output=True,
                             text=True)
+    print(result, flush=True)
     return result
