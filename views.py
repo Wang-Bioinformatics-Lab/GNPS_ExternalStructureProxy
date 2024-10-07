@@ -195,23 +195,16 @@ def admincount():
     
     return str(LibraryEntry.select().count())
 
-@app.route('/admin/matchms_cleaning', methods=['GET'])
-def matchms_cleaning():
+@app.route('/admin/run_pipelines', methods=['GET'])
+def run_pipelines():
     """
     This API call is used to test the matchms cleaning pipeline in GNPS2
     """
-    from tasks_gnps import run_matchms_pipeline
-    result = run_matchms_pipeline.delay()
-    print("Running matchms cleaning pipeline, result:", result, flush=True)
-    return "Running matchms cleaning pipeline"
+    from tasks_gnps import run_cleaning_pipeline
+    result = run_cleaning_pipeline.delay()
+    print("Running  cleaning pipeline, result:", result, flush=True)
+    return "Running  cleaning pipeline"
 
 @app.route('/admin/download_cleaning_report', methods=['GET']) # TODO: No parameters for now
-def download_matchms_cleaning_report():
-    # Get all files in /output/cleaned_dara/nf_report_*.html
-    files = os.listdir("/output/cleaned_data")
-    files = [f for f in files if f.startswith("nf_report_") and f.endswith(".html")]
-    # Get most recent
-    files.sort(key=lambda x: os.path.getmtime(os.path.join("/output/cleaned_data", x)))
-    most_recent = files[-1]
-    
-    return send_from_directory("/output/cleaned_data", most_recent)
+def download_cleaning_report():
+    return send_from_directory(directory="/output/cleaned_data/", path="ml_pipeline_report.html")
