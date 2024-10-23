@@ -62,11 +62,11 @@ def generate_gnps_data():
     #     output_file.write(msp_string.encode("ascii", "ignore"))
     
     #### MatchMS/ML Prep Pipeline ####
-    run_matchms_pipeline.delay()
+    run_cleaning_pipeline.delay()
 
 @celery_instance.task(time_limit=43200) #12 Hour Timeout
-def run_matchms_pipeline():
-    utils.run_matchms_pipeline("/output/ALL_GNPS_NO_PROPOGATED.json", "/output/cleaned_data/")
+def run_cleaning_pipeline():
+    utils.run_cleaning_pipeline("/output/ALL_GNPS_NO_PROPOGATED.json", "/output/cleaned_data/")
     
     return "Finished matchms cleaning pipeline"
 
@@ -79,5 +79,5 @@ celery_instance.conf.beat_schedule = {
 
 celery_instance.conf.task_routes = {
     'tasks_gnps.generate_gnps_data': {'queue': 'beat_worker'},
-    'tasks_gnps.run_matchms_pipeline': {'queue': 'beat_worker'},
+    'tasks_gnps.run_cleaning_pipeline': {'queue': 'beat_worker'},
 }
