@@ -64,7 +64,7 @@ def generate_gnps_data():
     #### MatchMS/ML Prep Pipeline ####
     run_cleaning_pipeline.delay()
 
-@celery_instance.task(time_limit=43200) #12 Hour Timeout
+@celery_instance.task(time_limit=64800) #12 Hour Timeout
 def run_cleaning_pipeline():
     utils.run_cleaning_pipeline("/output/ALL_GNPS_NO_PROPOGATED.json", "/output/cleaned_data/")
     
