@@ -223,6 +223,6 @@ def run_pipelines():
     print("Running  cleaning pipeline, result:", result, flush=True)
     return "Running  cleaning pipeline"
 
-@app.route('/admin/download_cleaning_report', methods=['GET']) # TODO: No parameters for now
+@app.route('/download_cleaning_report', methods=['GET']) # TODO: No parameters for now
 def download_cleaning_report():
     return send_from_directory(directory="/output/cleaned_data/", path="ml_pipeline_report.html")
