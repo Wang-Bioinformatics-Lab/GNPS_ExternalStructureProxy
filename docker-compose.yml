@@ -25,6 +25,20 @@ services:
     depends_on: 
       - externalstructureproxy-rabbitmq
 
+  externalstructureproxy-api_request_worker:
+    build: .
+    container_name: externalstructureproxy-api_request_worker
+    volumes:
+        - ./output:/output:rw
+        - /home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:/home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:ro
+    networks:
+      - default
+    restart: always
+    command: /app/run_api_request_worker.sh
+    depends_on: 
+      - externalstructureproxy-rabbitmq
+
+
   externalstructureproxy-worker1:
     build: .
     container_name: externalstructureproxy-worker1
