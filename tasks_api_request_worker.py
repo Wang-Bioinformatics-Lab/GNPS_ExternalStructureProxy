@@ -1,3 +1,4 @@
+import sys
 from celery import Celery
 import redis
 from redis.exceptions import LockError
@@ -27,21 +28,25 @@ def task_structure_classification():
     of new structures are added to the database.
     """
 
+    # DEBUG
+    redis_client.delete("structure_classification_lock")
+
     # Lock times out synchronously with task time limit
     lock = redis_client.lock("structure_classification_lock", timeout=TASK_TIME_LIMIT, blocking_timeout=5)
     got_lock = lock.acquire(blocking=True)
     if not got_lock:
-        print("Another instance of task_structure_classification() already running. Exiting.")
-        return
+        print("Another instance of task_structure_classification() already running. Exiting.", file=sys.stderr, flush=True)
+        return "Task already running"
     
     try:
-        path_to_script = ""
+        path_to_script = "/app/pipelines/structureClassification/nf_workflow.nf"
         input_path = Path("/output/cleaned_data/ALL_GNPS_cleaned.csv")
-        output_path = Path("/output/structure_classification")
+        output_path_static = Path("/output/structure_classification")
+        output_path = Path("/internal-outputs/structure_classification")
 
         if not input_path.exists():
-            print(f"Input file {input_path} does not exist. Exiting task.")
-            return
+            print(f"Input file {input_path} does not exist. Exiting task.", file=sys.stderr, flush=True)
+            return "Input file not found"
 
         if not os.path.isdir(output_path):
             os.makedirs(output_path, exist_ok=True)
@@ -71,13 +76,31 @@ def task_structure_classification():
             "--log_ChemInfoService", str(params['log_ChemInfoService']),
         ])
 
+        # Print the output of /nextflow log to sys.stderr
+        log_output = subprocess.run(["/nextflow", "log", path_to_script], capture_output=True, text=True)
+
+
+        # Output to static output
+        if not os.path.isdir(output_path_static):
+            os.makedirs(output_path_static, exist_ok=True)
+        shutil.copytree(output_path, output_path_static, dirs_exist_ok=True)
+
+        return "Task completed successfully"
+
     finally:
+        # Clean up temp input file
+        if temp_input_path.exists():
+            os.remove(temp_input_path)
         lock.release()
                     
 
-celery_instance.conf.beat_schedule = {
-    "structure_classification_daily": {
-        "task": "tasks_api_request_worker.task_structure_classification",
-        "schedule": RUN_EVERY
-    }
+celery_instance.conf.beat_schedule = {  # No schedule for now
+    # "structure_classification_daily": {
+    #     "task": "tasks_api_request_worker.task_structure_classification",
+    #     "schedule": RUN_EVERY
+    # }
+}
+
+celery_instance.conf.task_routes = {
+    'tasks_api_request_worker.task_structure_classification': {'queue': 'api_request_worker'},
 }

@@ -30,7 +30,7 @@ services:
     container_name: externalstructureproxy-api_request_worker
     volumes:
         - ./output:/output:rw
-        - /home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:/home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:ro
+        - ./internal-outputs/:/internal-outputs:rw
     networks:
       - default
     restart: always
