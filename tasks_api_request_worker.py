@@ -29,7 +29,7 @@ def task_structure_classification():
     """
 
     # DEBUG
-    redis_client.delete("structure_classification_lock")
+    # redis_client.delete("structure_classification_lock")
 
     # Lock times out synchronously with task time limit
     lock = redis_client.lock("structure_classification_lock", timeout=TASK_TIME_LIMIT, blocking_timeout=5)
