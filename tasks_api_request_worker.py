@@ -40,6 +40,7 @@ def task_structure_classification():
     
     try:
         path_to_script = "/app/pipelines/structureClassification/nf_workflow.nf"
+        path_to_config = "/app/pipelines/structureClassification/nextflow.config"
         input_path = Path("/output/cleaned_data/ALL_GNPS_cleaned.csv")
         output_path_static = Path("/output/structure_classification")
         output_path = Path("/internal-outputs/structure_classification")
@@ -58,11 +59,12 @@ def task_structure_classification():
         params = {
             'structure_csv': temp_input_path,
             'output_directory_Classyfire': output_path / "Classyfire",
-            'output_directory_Npclassifier': output_path / "NPClassyfire",
+            'output_directory_Npclassifier': output_path / "Npclassifier",
             'output_directory_ChemInfoService': output_path / "ChemInfoService",
-            'log_Classyfire': output_path / "Classyfire" / "log.txt",
-            'log_Npclassifier': output_path / "NPClassyfire" / "log.txt",
-            'log_ChemInfoService': output_path / "ChemInfoService" / "log.txt",
+            'log_Classyfire': output_path / "Classyfire.log",
+            'log_Npclassifier': output_path / "Npclassifier.log",
+            'log_ChemInfoService': output_path / "ChemInfoService.log",
+            'report_path': output_path_static / "api_caching_report.html",
         }
 
         subprocess.run([
@@ -74,6 +76,7 @@ def task_structure_classification():
             "--log_Classyfire", str(params['log_Classyfire']),
             "--log_Npclassifier", str(params['log_Npclassifier']),
             "--log_ChemInfoService", str(params['log_ChemInfoService']),
+            "-c", path_to_config,
         ])
 
         # Print the output of /nextflow log to sys.stderr
@@ -95,10 +98,10 @@ def task_structure_classification():
                     
 
 celery_instance.conf.beat_schedule = {  # No schedule for now
-    # "structure_classification_daily": {
-    #     "task": "tasks_api_request_worker.task_structure_classification",
-    #     "schedule": RUN_EVERY
-    # }
+    "structure_classification_daily": {
+        "task": "tasks_api_request_worker.task_structure_classification",
+        "schedule": RUN_EVERY
+    }
 }
 
 celery_instance.conf.task_routes = {

@@ -341,7 +341,7 @@ def run_cleaning_pipeline(gnps_json_file, output_directory):
     
     """
     path_to_script  = "/app/pipelines//gnps_ml_processing_workflow/GNPS_ML_Processing/nf_workflow.nf"
-    api_cache_path  = "/app/pipelines/structureClassification/nf_output/"
+    api_cache_path  = "/output/structure_classification/"
     if not os.path.isdir(output_directory):
         os.makedirs(output_directory, exist_ok=True)
     
