@@ -189,6 +189,7 @@ def processed_gnps_data_mgf_download():
 
 @app.route('/processed_gnps_data/gnps_cleaned.csv', methods=['GET']) # TODO: No parameters for now
 def processed_gnps_data_gnps_cleaned_csv_download():
+    # return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned_enriched.csv")
     return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned.csv")
 
 @app.route('/processed_gnps_data/gnps_cleaned.mgf', methods=['GET']) # TODO: No parameters for now
