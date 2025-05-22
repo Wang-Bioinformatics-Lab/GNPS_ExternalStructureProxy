@@ -1,3 +1,6 @@
 [submodule "matchms/gnps_ml_processing_workflow"]
 	path = pipelines/gnps_ml_processing_workflow
 	url = https://github.com/Wang-Bioinformatics-Lab/gnps_ml_processing_workflow.git
+[submodule "pipelines/structureClassification"]
+	path = pipelines/structureClassification
+	url = git@github.com:YasinEl/structureClassification.git

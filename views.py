@@ -189,6 +189,7 @@ def processed_gnps_data_mgf_download():
 
 @app.route('/processed_gnps_data/gnps_cleaned.csv', methods=['GET']) # TODO: No parameters for now
 def processed_gnps_data_gnps_cleaned_csv_download():
+    # return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned_enriched.csv")
     return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned.csv")
 
 @app.route('/processed_gnps_data/gnps_cleaned.mgf', methods=['GET']) # TODO: No parameters for now
@@ -220,8 +221,18 @@ def run_pipelines():
     """
     from tasks_gnps import run_cleaning_pipeline
     result = run_cleaning_pipeline.delay()
-    print("Running  cleaning pipeline, result:", result, flush=True)
-    return "Running  cleaning pipeline"
+    print("Running cleaning pipeline, result:", result, flush=True)
+    return "Running cleaning pipeline"
+
+@app.route('/admin/update_api_cache', methods=['GET'])
+def update_api_cache():
+    """
+    This API call is used to update the ClassyFire, NPClassifier and ChemInfoService cache
+    """
+    from tasks_api_request_worker import task_structure_classification
+    result = task_structure_classification.delay()
+    print("Running structure classification, result:", result, flush=True)
+    return "Running structure classification"
 
 @app.route('/download_cleaning_report', methods=['GET']) # TODO: No parameters for now
 def download_cleaning_report():
