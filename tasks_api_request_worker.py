@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import pandas as pd
 
 from models import *
 
@@ -41,20 +42,31 @@ def task_structure_classification():
     try:
         path_to_script = "/app/pipelines/structureClassification/nf_workflow.nf"
         path_to_config = "/app/pipelines/structureClassification/nextflow.config"
-        input_path = Path("/output/cleaned_data/ALL_GNPS_cleaned.csv")
+        input_paths = [Path("/output/cleaned_data/ALL_GNPS_cleaned.csv")]
+        # Get other inputs from haromized libraries
+        other_haromized_libraries = Path("/output/cleaned_libaries/").glob("/**/*.csv")
+        input_paths.extend(other_haromized_libraries)
         output_path_static = Path("/output/structure_classification")
         output_path = Path("/internal-outputs/structure_classification")
 
-        if not input_path.exists():
-            print(f"Input file {input_path} does not exist. Exiting task.", file=sys.stderr, flush=True)
-            return "Input file not found"
+        for input_path in input_paths:
+            if not input_path.exists():
+                print(f"Input file {input_path} does not exist. Exiting task.", file=sys.stderr, flush=True)
+                return "Input file not found"
 
         if not os.path.isdir(output_path):
             os.makedirs(output_path, exist_ok=True)
 
         # Use a temp copy of the input file
         temp_input_path = output_path / "ALL_GNPS_cleaned.csv"
-        shutil.copy(input_path, temp_input_path)
+        # Merge all input files
+        df = pd.dataframe()
+        for input_path in input_paths:
+            if input_path.exists():
+                df = pd.concat([df, pd.read_csv(input_path)], ignore_index=True)
+
+        df.drop_duplicates(subset=["spectrum_id"], inplace=True)
+        df.to_csv(temp_input_path, index=False)
 
         params = {
             'structure_csv': temp_input_path,
