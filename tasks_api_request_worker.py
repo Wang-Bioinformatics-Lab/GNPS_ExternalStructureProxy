@@ -30,7 +30,7 @@ def task_structure_classification():
     """
 
     # DEBUG
-    # redis_client.delete("structure_classification_lock")
+    redis_client.delete("structure_classification_lock")
 
     # Lock times out synchronously with task time limit
     lock = redis_client.lock("structure_classification_lock", timeout=TASK_TIME_LIMIT, blocking_timeout=5)
@@ -44,7 +44,7 @@ def task_structure_classification():
         path_to_config = "/app/pipelines/structureClassification/nextflow.config"
         input_paths = [Path("/output/cleaned_data/ALL_GNPS_cleaned.csv")]
         # Get other inputs from haromized libraries
-        other_haromized_libraries = Path("/output/cleaned_libaries/").glob("/**/*.csv")
+        other_haromized_libraries = Path("/output/cleaned_libaries/").glob("**/*.csv")
         input_paths.extend(other_haromized_libraries)
         output_path_static = Path("/output/structure_classification")
         output_path = Path("/internal-outputs/structure_classification")
@@ -58,9 +58,9 @@ def task_structure_classification():
             os.makedirs(output_path, exist_ok=True)
 
         # Use a temp copy of the input file
-        temp_input_path = output_path / "ALL_GNPS_cleaned.csv"
+        temp_input_path = output_path / "cleaned_data.csv"
         # Merge all input files
-        df = pd.dataframe()
+        df = pd.DataFrame()
         for input_path in input_paths:
             if input_path.exists():
                 df = pd.concat([df, pd.read_csv(input_path)], ignore_index=True)

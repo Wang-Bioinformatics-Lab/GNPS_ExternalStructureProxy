@@ -2,6 +2,8 @@ from celery import Celery
 import json
 import utils
 from pathlib import Path
+from celery import chain
+
 
 celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis', broker='pyamqp://guest@externalstructureproxy-rabbitmq/', )
 
@@ -72,11 +74,11 @@ def generate_gnps_data():
     #     output_file.write(msp_string.encode("ascii", "ignore"))
     
     #### MatchMS/ML Prep Pipeline ####
-    run_cleaning_pipeline.delay()
-    #### Multiplex All ####
-    run_cleaning_pipeline_library_specific.delay("MULTIPLEX_ALL")
-    #### Multiplex Filtered ####
-    run_cleaning_pipeline_library_specific.delay("MULTIPLEX_FILTERED")
+    chain(
+        run_cleaning_pipeline.s(),
+        run_cleaning_pipeline_library_specific.s("MULTIPLEX_ALL"),
+        run_cleaning_pipeline_library_specific.s("MULTIPLEX_FILTERED")
+    ).delay()
 
 @celery_instance.task(time_limit=64_800) # 18 Hour Timeout
 def run_cleaning_pipeline():
