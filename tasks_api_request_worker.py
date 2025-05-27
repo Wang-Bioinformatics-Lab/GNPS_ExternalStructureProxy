@@ -19,7 +19,7 @@ redis_client = redis.Redis(host='externalstructureproxy-redis', port=6379, db=0)
 RUN_EVERY = 86400  # 24 hours
 TASK_TIME_LIMIT = 604800 # One week
 
-@celery_instance.task(time_limit=TASK_TIME_LIMIT)
+@celery_instance.task(time_limit=TASK_TIME_LIMIT, acks_late=True, )
 def task_structure_classification():
     """
     This task enriches the structure database with information from multiple APIs including

@@ -224,6 +224,20 @@ def run_pipelines():
     print("Running cleaning pipeline, result:", result, flush=True)
     return "Running cleaning pipeline"
 
+@app.route('/admin/debug/run_new_pipeline', methods=['GET'])
+def run_new_pipeline():
+    """
+    This API call is used to test the new pipeline in GNPS2
+    """
+    from tasks_gnps import run_cleaning_pipeline_library_specific
+    from celery import chain, signature
+
+    chain(
+        signature(run_cleaning_pipeline_library_specific.si("MULTIPLEX_ALL"), immutable=True),
+        signature(run_cleaning_pipeline_library_specific.si("MULTIPLEX_FILTERED"), immutable=True),
+    ).apply_async(queue="beat_worker")
+    return "Running new pipeline"
+
 @app.route('/admin/update_api_cache', methods=['GET'])
 def update_api_cache():
     """

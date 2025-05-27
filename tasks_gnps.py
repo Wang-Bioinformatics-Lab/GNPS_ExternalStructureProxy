@@ -2,7 +2,7 @@ from celery import Celery
 import json
 import utils
 from pathlib import Path
-from celery import chain
+from celery import chain, signature
 
 
 celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis', broker='pyamqp://guest@externalstructureproxy-rabbitmq/', )
@@ -57,7 +57,6 @@ def generate_gnps_data():
     multiplex_filtered_encriched_gnps_libraries_with_peaks = [spectrum_dict for spectrum_dict in encriched_gnps_libraries_with_peaks if spectrum_dict["library_membership"] in multiplex_filtered_library_list]
 
     utils._output_library_files(multiplex_filtered_encriched_gnps_libraries_with_peaks, "/output/", "MULTIPLEX_FILTERED")
-
     # with open("/output/ALL_GNPS.json", "w") as output_file:
     #     output_file.write(json.dumps(encriched_gnps_libraries_with_peaks))
 
@@ -75,10 +74,10 @@ def generate_gnps_data():
     
     #### MatchMS/ML Prep Pipeline ####
     chain(
-        run_cleaning_pipeline.s(),
-        run_cleaning_pipeline_library_specific.s("MULTIPLEX_ALL"),
-        run_cleaning_pipeline_library_specific.s("MULTIPLEX_FILTERED")
-    ).delay()
+        signature(run_cleaning_pipeline.si(), immutable=True),
+        signature(run_cleaning_pipeline_library_specific.si("MULTIPLEX_ALL"), immutable=True),
+        signature(run_cleaning_pipeline_library_specific.si("MULTIPLEX_FILTERED"), immutable=True),
+    ).apply_async(queue="beat_worker")
 
 @celery_instance.task(time_limit=64_800) # 18 Hour Timeout
 def run_cleaning_pipeline():
@@ -92,7 +91,7 @@ def run_cleaning_pipeline_library_specific(library):
     output_dir = Path(f"/output/cleaned_libaries/{library}/")
     if not output_dir.exists():
         output_dir.mkdir(parents=True, exist_ok=True)
-    utils.run_cleaning_pipeline(f"/output/{library}.json", output_dir)
+    utils.run_cleaning_pipeline(f"/output/{library}.json", output_dir, no_massbank=True)
     
     return f"Finished matchms cleaning pipeline for {library}"
 
