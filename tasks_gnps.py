@@ -73,11 +73,9 @@ def generate_gnps_data():
     #     output_file.write(msp_string.encode("ascii", "ignore"))
     
     #### MatchMS/ML Prep Pipeline ####
-    chain(
-        signature(run_cleaning_pipeline.si(), immutable=True),
-        signature(run_cleaning_pipeline_library_specific.si("MULTIPLEX_ALL"), immutable=True),
-        signature(run_cleaning_pipeline_library_specific.si("MULTIPLEX_FILTERED"), immutable=True),
-    ).apply_async(queue="beat_worker")
+    run_cleaning_pipeline.delay()
+    run_cleaning_pipeline_library_specific.delay("MULTIPLEX_ALL")
+    run_cleaning_pipeline_library_specific.delay("MULTIPLEX_FILTERED")
 
 @celery_instance.task(time_limit=64_800) # 18 Hour Timeout
 def run_cleaning_pipeline():
