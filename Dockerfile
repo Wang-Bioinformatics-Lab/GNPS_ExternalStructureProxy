@@ -32,6 +32,10 @@ RUN echo "export PATH=$CONDA_DIR:$PATH" >> ~/.bashrc
 RUN echo "export PATH=/nextflow:$PATH" >> ~/.bashrc
 ENV PATH=/nextflow:$PATH
 
+# Set Conda/Mamba to be non-interactive
+ENV CONDA_ALWAYS_YES="true"
+ENV MAMBA_ALWAYS_YES="true"
+
 # Creating env
 RUN mamba create -n rdkit -c rdkit rdkit=2019.09.3.0
 RUN mamba create -n web python=3.9

@@ -35,6 +35,20 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  externalstructureproxy-api_request_worker:
+    build: .
+    container_name: externalstructureproxy-api_request_worker
+    volumes:
+        - ./output:/output:rw
+        - ./internal-outputs/:/internal-outputs:rw
+    networks:
+      - default
+    restart: always
+    command: /app/run_api_request_worker.sh
+    depends_on: 
+      - externalstructureproxy-rabbitmq
+
+
   externalstructureproxy-worker1:
     build: .
     container_name: externalstructureproxy-worker1

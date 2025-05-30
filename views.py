@@ -153,7 +153,27 @@ def gnpslibrary():
     library_dict["mgflink"] = "/processed_gnps_data/matchms.mgf"
     library_dict["jsonlink"] = None
     preprocessed_list.append(library_dict)
-    
+
+    # Mulitplex All
+    if False: # TODO: Disable for now until this data has been generated
+        library_dict = {}
+        library_dict["libraryname"] = "MULTIPLEX-SYNTHESIS-ALL"
+        library_dict["processingpipeline"] = 'GNPS Cleaning'
+        library_dict["csvlink"] = "/processed_gnps_data/MULTIPLEX_ALL.csv"
+        library_dict["mgflink"] = "/processed_gnps_data/MULTIPLEX_ALL.mgf"
+        library_dict["jsonlink"] = "/processed_gnps_data/MULTIPLEX_ALL.json"
+        preprocessed_list.append(library_dict)
+
+    # Multiplex Filtered
+    if False: # TODO: Disable for now until this data has been generated
+        library_dict = {}
+        library_dict["libraryname"] = "MULTIPLEX-SYNTHESIS-FILTERED"
+        library_dict["processingpipeline"] = 'GNPS Cleaning'
+        library_dict["csvlink"] = "/processed_gnps_data/MULTIPLEX_FILTERED.csv"
+        library_dict["mgflink"] = "/processed_gnps_data/MULTIPLEX_FILTERED.mgf"
+        library_dict["jsonlink"] = "/processed_gnps_data/MULTIPLEX_FILTERED.json"
+        preprocessed_list.append(library_dict)
+
     ####    ####
     
     return render_template('gnpslibrarylist.html',
@@ -189,6 +209,7 @@ def processed_gnps_data_mgf_download():
 
 @app.route('/processed_gnps_data/gnps_cleaned.csv', methods=['GET']) # TODO: No parameters for now
 def processed_gnps_data_gnps_cleaned_csv_download():
+    # return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned_enriched.csv")
     return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned.csv")
 
 @app.route('/processed_gnps_data/gnps_cleaned.mgf', methods=['GET']) # TODO: No parameters for now
@@ -198,6 +219,27 @@ def processed_gnps_data_gnps_cleaned_mgf_download():
 @app.route('/processed_gnps_data/gnps_cleaned.json', methods=['GET']) # TODO: No parameters for now
 def processed_gnps_data_gnps_cleaned_json_download():
     return send_from_directory("/output/cleaned_data/json_outputs", "ALL_GNPS_cleaned.json")
+
+# Cleaned libraries
+@app.route('/processed_gnps_library/<library>.csv', methods=['GET'])
+def processed_gnps_library_csv_download(library):
+    """
+    This endpoint is used to download the preprocessed data in CSV format.
+    """
+    return send_from_directory(f"/output/cleaned_libraries/{library}", "ALL_GNPS_cleaned.csv")
+@app.route('/processed_gnps_library/<library>.json', methods=['GET'])
+def processed_gnps_library_json_download(library):
+    """
+    This endpoint is used to download the preprocessed data in JSON format.
+    """
+    return send_from_directory(f"/output/cleaned_libraries/{library}", "ALL_GNPS_cleaned.json")
+
+@app.route('/processed_gnps_library/<library>.mgf', methods=['GET'])
+def processed_gnps_library_mgf_download(library):
+    """
+    This endpoint is used to download the preprocessed data in MGF format.
+    """
+    return send_from_directory(f"/output/cleaned_libraries/{library}", "ALL_GNPS_cleaned.mgf")
 
 # Admin
 from tasks_gnps import generate_gnps_data
@@ -220,8 +262,29 @@ def run_pipelines():
     """
     from tasks_gnps import run_cleaning_pipeline
     result = run_cleaning_pipeline.delay()
-    print("Running  cleaning pipeline, result:", result, flush=True)
-    return "Running  cleaning pipeline"
+    print("Running cleaning pipeline, result:", result, flush=True)
+    return "Running cleaning pipeline"
+
+@app.route('/admin/debug/run_new_pipeline', methods=['GET'])
+def run_new_pipeline():
+    """
+    This API call is used to test the new pipeline in GNPS2
+    """
+    from tasks_gnps import run_cleaning_pipeline_library_specific
+
+    run_cleaning_pipeline_library_specific.delay("MULTIPLEX_ALL")
+    run_cleaning_pipeline_library_specific.delay("MULTIPLEX_FILTERED")
+    return "Running new pipeline"
+
+@app.route('/admin/update_api_cache', methods=['GET'])
+def update_api_cache():
+    """
+    This API call is used to update the ClassyFire, NPClassifier and ChemInfoService cache
+    """
+    from tasks_api_request_worker import task_structure_classification
+    result = task_structure_classification.delay()
+    print("Running structure classification, result:", result, flush=True)
+    return "Running structure classification"
 
 @app.route('/download_cleaning_report', methods=['GET']) # TODO: No parameters for now
 def download_cleaning_report():
