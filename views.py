@@ -11,9 +11,11 @@ import requests_cache
 import utils
 import pandas as pd
 import datetime
+from pathlib import Path
 
 from models import *
 from tasks_worker import task_updategnpslibrary, task_computeheartbeat
+from typing import List
 
 @app.route('/', methods=['GET'])
 def homepage():
@@ -189,6 +191,7 @@ def processed_gnps_data_mgf_download():
 
 @app.route('/processed_gnps_data/gnps_cleaned.csv', methods=['GET']) # TODO: No parameters for now
 def processed_gnps_data_gnps_cleaned_csv_download():
+    # return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned_enriched.csv")
     return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned.csv")
 
 @app.route('/processed_gnps_data/gnps_cleaned.mgf', methods=['GET']) # TODO: No parameters for now
@@ -220,9 +223,50 @@ def run_pipelines():
     """
     from tasks_gnps import run_cleaning_pipeline
     result = run_cleaning_pipeline.delay()
-    print("Running  cleaning pipeline, result:", result, flush=True)
-    return "Running  cleaning pipeline"
+    print("Running cleaning pipeline, result:", result, flush=True)
+    return "Running cleaning pipeline"
+
+@app.route('/admin/update_api_cache', methods=['GET'])
+def update_api_cache():
+    """
+    This API call is used to update the ClassyFire, NPClassifier and ChemInfoService cache
+    """
+    from tasks_api_request_worker import task_structure_classification
+    result = task_structure_classification.delay()
+    print("Running structure classification, result:", result, flush=True)
+    return "Running structure classification"
 
 @app.route('/download_cleaning_report', methods=['GET']) # TODO: No parameters for now
 def download_cleaning_report():
     return send_from_directory(directory="/output/cleaned_data/", path="ml_pipeline_report.html")
+
+def get_change_time(root_dir:Path, relevant_logs:List[str]):
+    relevant_logs = [root_dir / log for log in relevant_logs]
+    print("Attempting to poll logs:", relevant_logs, flush=True)
+    relevant_logs = [log for log in relevant_logs if (root_dir / log).exists()]
+    print("Found logs:", relevant_logs, flush=True)
+    latest_update = None
+    for log_file in relevant_logs:
+        # Get the ctime 
+        ctime = log_file.stat().st_ctime
+        if latest_update is None or ctime > latest_update:
+            latest_update = ctime
+    if latest_update is not None:
+        latest_update = datetime.datetime.fromtimestamp(latest_update)
+        return jsonify({"latest_update": latest_update.strftime("%Y-%m-%d %H:%M:%S")})
+    else:
+        return jsonify({"error": "No relevant logs found"}), 404
+
+@app.route('/get_latest_api_update', methods=['GET'])
+def get_latest_api_update():
+    """
+    Get the most recent time the API was updated as the haromization workflow sees it.
+    """
+    # Poll ChemInfoService.log, Classyfire.log, and NPClassifier.log for latest update times
+    root_dir = Path("/output/structure_classification/")
+    relevant_logs = [
+        "ChemInfoService.log",
+        "Classyfire.log",
+        "NPClassifier.log"
+    ]
+    return get_change_time(root_dir, relevant_logs)
