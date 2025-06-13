@@ -3,4 +3,4 @@
 	url = https://github.com/Wang-Bioinformatics-Lab/gnps_ml_processing_workflow.git
 [submodule "pipelines/structureClassification"]
 	path = pipelines/structureClassification
-	url = git@github.com:YasinEl/structureClassification.git
+	url = https://github.com/YasinEl/structureClassification.git
