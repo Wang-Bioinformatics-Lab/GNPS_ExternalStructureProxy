@@ -354,6 +354,7 @@ def run_cleaning_pipeline(gnps_json_file, output_directory):
                                     "--conda_path", os.path.join(output_directory, "gnps2_ml_processing_env"),
                                     "--matchms_conda_path", os.path.join(output_directory, "matchms_env"),
                                     "--api_cache", api_cache_path,
+                                    "-with-report", os.path.join(output_directory, "ml_pipeline_report.html"),
                                 ],
                             capture_output=True,
                             text=True)
