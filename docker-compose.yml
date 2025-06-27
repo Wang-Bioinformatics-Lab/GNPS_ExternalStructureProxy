@@ -51,7 +51,7 @@ services:
 
   externalstructureproxy-library_api_retrieve_worker:
     build: .
-    container_name: externalstructureproxy-worker1
+    container_name: externalstructureproxy-library_api_retrieve_worker
     volumes:
         - ./output:/output:rw
         - ./data:/app/data:ro
