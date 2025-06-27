@@ -66,6 +66,7 @@ def gnpsspectrum():
         #if (now - lastupdate).days > 0:
             task_updategnpslibrary.delay(gnpsid)
     except:
+        print("GNPS ID not found in database, trying to fetch it", gnpsid, file=sys.stderr, flush=True)
         # this likely means it is not in the database, we should try to grab it for next time
         task_updategnpslibrary.delay(gnpsid)
 
