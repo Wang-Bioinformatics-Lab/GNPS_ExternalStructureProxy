@@ -62,8 +62,8 @@ def gnpsspectrum():
         lastupdate = datetime.datetime.strptime(lastupdate, "%Y-%m-%d %H:%M:%S")
 
         # if the last update was more than 5 day ago, we should update it
-        #if (now - lastupdate).days > 5:
-        if (now - lastupdate).days > 0:
+        if (now - lastupdate).days > 30:
+        #if (now - lastupdate).days > 0:
             task_updategnpslibrary.delay(gnpsid)
     except:
         # this likely means it is not in the database, we should try to grab it for next time

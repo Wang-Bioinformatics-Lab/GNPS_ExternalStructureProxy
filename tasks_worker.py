@@ -65,6 +65,8 @@ def task_updategnpslibrary(accession):
 
 ### GNPS Spectral Library Delivery Endpoints that will be constantly updated
 def _get_gnps_spectrum(gnpsid):
+    print("GRABBING GNPS Entry for", gnpsid, file=sys.stderr, flush=True)
+
     r = requests.get("https://gnps.ucsd.edu/ProteoSAFe/SpectrumCommentServlet?SpectrumID={}".format(gnpsid.rstrip().lstrip()))
     r.raise_for_status()
 
