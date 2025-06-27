@@ -31,7 +31,6 @@ def task_computeheartbeat():
 # Here we need to update the library entry for GNPS the library entry
 @celery_instance.task(time_limit=60)
 def task_updategnpslibrary(accession):
-    print("GETTING GNPS LIBRRAY SPECTRUM", accession, file=sys.stderr, flush=True)
     # We don't decide if we should, someone else decides, here we just do it
 
     # What time is it now
@@ -53,7 +52,7 @@ def task_updategnpslibrary(accession):
         # save the entry
         library_entry.save()
     except:
-        print("Creating new entry", accession, now)
+        print("Creating new entry {} {}".format(accession, now))
 
         # this likely means it is not in the database
         library_entry = LibraryEntry.create(libraryaccession=accession, libraryname=json_entry["spectruminfo"]["library_membership"], libraryjson=_library_entry, librarysource="GNPS", lastupdate=now)
@@ -66,7 +65,7 @@ def task_updategnpslibrary(accession):
 
 ### GNPS Spectral Library Delivery Endpoints that will be constantly updated
 def _get_gnps_spectrum(gnpsid):
-    print("GRABBING GNPS Entry for", gnpsid, file=sys.stderr, flush=True)
+    print("GRABBING GNPS Entry via URL {}".format(gnpsid), file=sys.stderr, flush=True)
 
     r = requests.get("https://gnps.ucsd.edu/ProteoSAFe/SpectrumCommentServlet?SpectrumID={}".format(gnpsid.rstrip().lstrip()))
     r.raise_for_status()
