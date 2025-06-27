@@ -52,6 +52,7 @@ def task_updategnpslibrary(accession):
         # save the entry
         library_entry.save()
     except:
+        # This means we couldnt find it, so we create a new one
         print("Creating new entry {} {}".format(accession, now))
 
         # this likely means it is not in the database
@@ -74,6 +75,6 @@ def _get_gnps_spectrum(gnpsid):
 
 
 celery_instance.conf.task_routes = {
-    'tasks_worker.task_updategnpslibrary': {'queue': 'worker'},
-    'tasks_worker.task_computeheartbeat': {'queue': 'worker'},
+    'tasks_library_api_retrieve_worker.task_updategnpslibrary': {'queue': 'worker'},
+    'tasks_library_api_retrieve_worker.task_computeheartbeat': {'queue': 'worker'},
 }

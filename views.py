@@ -15,7 +15,7 @@ import datetime
 from pathlib import Path
 
 from models import *
-from tasks_worker import task_updategnpslibrary, task_computeheartbeat
+from tasks_library_api_retrieve_worker import task_updategnpslibrary, task_computeheartbeat
 from typing import List
 
 @app.route('/', methods=['GET'])
