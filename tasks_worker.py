@@ -31,6 +31,7 @@ def task_computeheartbeat():
 # Here we need to update the library entry for GNPS the library entry
 @celery_instance.task(time_limit=60)
 def task_updategnpslibrary(accession):
+    print("GETTING GNPS LIBRRAY SPECTRUM", accession, file=sys.stderr, flush=True)
     # We don't decide if we should, someone else decides, here we just do it
 
     # What time is it now
