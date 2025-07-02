@@ -6,14 +6,17 @@ from app import app
 import json
 import csv
 import os
+import sys
 import requests
 import requests_cache
 import utils
 import pandas as pd
 import datetime
+from pathlib import Path
 
 from models import *
-from tasks_worker import task_updategnpslibrary, task_computeheartbeat
+from tasks_library_api_retrieve_worker import task_updategnpslibrary, task_computeheartbeat
+from typing import List
 
 @app.route('/', methods=['GET'])
 def homepage():
@@ -60,10 +63,11 @@ def gnpsspectrum():
         lastupdate = datetime.datetime.strptime(lastupdate, "%Y-%m-%d %H:%M:%S")
 
         # if the last update was more than 5 day ago, we should update it
-        #if (now - lastupdate).days > 5:
-        if (now - lastupdate).days > 0:
+        if (now - lastupdate).days > 30:
+        #if (now - lastupdate).days > 0:
             task_updategnpslibrary.delay(gnpsid)
     except:
+        print("GNPS ID not found in database, trying to fetch it", gnpsid, file=sys.stderr, flush=True)
         # this likely means it is not in the database, we should try to grab it for next time
         task_updategnpslibrary.delay(gnpsid)
 
@@ -289,3 +293,34 @@ def update_api_cache():
 @app.route('/download_cleaning_report', methods=['GET']) # TODO: No parameters for now
 def download_cleaning_report():
     return send_from_directory(directory="/output/cleaned_data/", path="ml_pipeline_report.html")
+
+def get_change_time(root_dir:Path, relevant_logs:List[str]):
+    relevant_logs = [root_dir / log for log in relevant_logs]
+    print("Attempting to poll logs:", relevant_logs, flush=True)
+    relevant_logs = [log for log in relevant_logs if (root_dir / log).exists()]
+    print("Found logs:", relevant_logs, flush=True)
+    latest_update = None
+    for log_file in relevant_logs:
+        # Get the ctime 
+        ctime = log_file.stat().st_ctime
+        if latest_update is None or ctime > latest_update:
+            latest_update = ctime
+    if latest_update is not None:
+        latest_update = datetime.datetime.fromtimestamp(latest_update)
+        return jsonify({"latest_update": latest_update.strftime("%Y-%m-%d %H:%M:%S")})
+    else:
+        return jsonify({"error": "No relevant logs found"}), 404
+
+@app.route('/get_latest_api_update', methods=['GET'])
+def get_latest_api_update():
+    """
+    Get the most recent time the API was updated as the haromization workflow sees it.
+    """
+    # Poll ChemInfoService.log, Classyfire.log, and NPClassifier.log for latest update times
+    root_dir = Path("/output/structure_classification/")
+    relevant_logs = [
+        "ChemInfoService.log",
+        "Classyfire.log",
+        "NPClassifier.log"
+    ]
+    return get_change_time(root_dir, relevant_logs)

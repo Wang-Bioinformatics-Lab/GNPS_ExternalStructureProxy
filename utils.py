@@ -360,6 +360,7 @@ def run_cleaning_pipeline(gnps_json_file, output_directory, no_massbank:bool=Fal
                                     "--conda_path", main_conda_path,
                                     "--matchms_conda_path", matchms_conda_path,
                                     "--api_cache", api_cache_path,
+                                    "-with-report", os.path.join(output_directory, "ml_pipeline_report.html"),
                                 ] + ["--include_massbank", "false"] if no_massbank else [],
                             capture_output=True,
                             text=True)

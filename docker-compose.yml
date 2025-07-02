@@ -49,9 +49,9 @@ services:
       - externalstructureproxy-rabbitmq
 
 
-  externalstructureproxy-worker1:
+  externalstructureproxy-library_api_retrieve_worker:
     build: .
-    container_name: externalstructureproxy-worker1
+    container_name: externalstructureproxy-library_api_retrieve_worker
     volumes:
         - ./output:/output:rw
         - ./data:/app/data:ro
@@ -59,7 +59,7 @@ services:
     networks:
       - default
     restart: always
-    command: /app/run_worker.sh
+    command: /app/run_library_api_retrieve_worker.sh
     depends_on: 
       - externalstructureproxy-rabbitmq
     logging:
@@ -73,6 +73,8 @@ services:
     networks:
       - default
     restart: always
+    volumes:
+      - ./rabbitmq_advanced.config:/etc/rabbitmq/advanced.config:ro
 
   externalstructureproxy-redis:
     image: redis:latest

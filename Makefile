@@ -32,3 +32,5 @@ server-compose-production-interactive:
 	docker-compose build
 	docker-compose -f docker-compose.yml -f docker-compose-production.yml --compatibility up
 
+init_modules:
+	git submodule update --init --recursive
