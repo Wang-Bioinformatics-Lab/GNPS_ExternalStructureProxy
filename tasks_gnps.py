@@ -2,8 +2,6 @@ from celery import Celery
 import json
 import utils
 from pathlib import Path
-from celery import chain, signature
-
 
 celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis', broker='pyamqp://guest@externalstructureproxy-rabbitmq/', )
 

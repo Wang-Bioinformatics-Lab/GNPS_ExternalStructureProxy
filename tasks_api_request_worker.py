@@ -29,9 +29,6 @@ def task_structure_classification():
     of new structures are added to the database.
     """
 
-    # DEBUG
-    redis_client.delete("structure_classification_lock")
-
     # Lock times out synchronously with task time limit
     lock = redis_client.lock("structure_classification_lock", timeout=TASK_TIME_LIMIT, blocking_timeout=5)
     got_lock = lock.acquire(blocking=True)
