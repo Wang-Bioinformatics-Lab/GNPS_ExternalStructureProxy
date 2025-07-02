@@ -159,24 +159,22 @@ def gnpslibrary():
     preprocessed_list.append(library_dict)
 
     # Mulitplex All
-    if False: # TODO: Disable for now until this data has been generated
-        library_dict = {}
-        library_dict["libraryname"] = "MULTIPLEX-SYNTHESIS-ALL"
-        library_dict["processingpipeline"] = 'GNPS Cleaning'
-        library_dict["csvlink"] = "/processed_gnps_data/MULTIPLEX_ALL.csv"
-        library_dict["mgflink"] = "/processed_gnps_data/MULTIPLEX_ALL.mgf"
-        library_dict["jsonlink"] = "/processed_gnps_data/MULTIPLEX_ALL.json"
-        preprocessed_list.append(library_dict)
+    library_dict = {}
+    library_dict["libraryname"]         = "MULTIPLEX-SYNTHESIS-ALL"
+    library_dict["processingpipeline"]  = 'GNPS Cleaning'
+    library_dict["csvlink"]             = "/processed_gnps_library/MULTIPLEX_ALL.csv"
+    library_dict["mgflink"]             = "/processed_gnps_library/MULTIPLEX_ALL.mgf"
+    library_dict["jsonlink"]            = "/processed_gnps_library/MULTIPLEX_ALL.json"
+    preprocessed_list.append(library_dict)
 
     # Multiplex Filtered
-    if False: # TODO: Disable for now until this data has been generated
-        library_dict = {}
-        library_dict["libraryname"] = "MULTIPLEX-SYNTHESIS-FILTERED"
-        library_dict["processingpipeline"] = 'GNPS Cleaning'
-        library_dict["csvlink"] = "/processed_gnps_data/MULTIPLEX_FILTERED.csv"
-        library_dict["mgflink"] = "/processed_gnps_data/MULTIPLEX_FILTERED.mgf"
-        library_dict["jsonlink"] = "/processed_gnps_data/MULTIPLEX_FILTERED.json"
-        preprocessed_list.append(library_dict)
+    library_dict = {}
+    library_dict["libraryname"]         = "MULTIPLEX-SYNTHESIS-FILTERED"
+    library_dict["processingpipeline"]  = 'GNPS Cleaning'
+    library_dict["csvlink"]             = "/processed_gnps_library/MULTIPLEX_FILTERED.csv"
+    library_dict["mgflink"]             = "/processed_gnps_library/MULTIPLEX_FILTERED.mgf"
+    library_dict["jsonlink"]            = "/processed_gnps_library/MULTIPLEX_FILTERED.json"
+    preprocessed_list.append(library_dict)
 
     ####    ####
     
@@ -207,20 +205,19 @@ def json_download(library):
 
 # Preprocessed Data List
 # TODO: Create a endpoint for list of preprocessed data
-@app.route('/processed_gnps_data/matchms.mgf', methods=['GET']) # TODO: No parameters for now 
+@app.route('/processed_gnps_data/matchms.mgf', methods=['GET'])
 def processed_gnps_data_mgf_download():
     return send_from_directory("/output/cleaned_data/matchms_output", "cleaned_spectra.mgf")
 
-@app.route('/processed_gnps_data/gnps_cleaned.csv', methods=['GET']) # TODO: No parameters for now
+@app.route('/processed_gnps_data/gnps_cleaned.csv', methods=['GET'])
 def processed_gnps_data_gnps_cleaned_csv_download():
-    # return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned_enriched.csv")
-    return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned.csv")
+    return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned_enriched.csv")
 
-@app.route('/processed_gnps_data/gnps_cleaned.mgf', methods=['GET']) # TODO: No parameters for now
+@app.route('/processed_gnps_data/gnps_cleaned.mgf', methods=['GET'])
 def processed_gnps_data_gnps_cleaned_mgf_download():
     return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned.mgf")
 
-@app.route('/processed_gnps_data/gnps_cleaned.json', methods=['GET']) # TODO: No parameters for now
+@app.route('/processed_gnps_data/gnps_cleaned.json', methods=['GET'])
 def processed_gnps_data_gnps_cleaned_json_download():
     return send_from_directory("/output/cleaned_data/json_outputs", "ALL_GNPS_cleaned.json")
 
@@ -230,20 +227,22 @@ def processed_gnps_library_csv_download(library):
     """
     This endpoint is used to download the preprocessed data in CSV format.
     """
-    return send_from_directory(f"/output/cleaned_libraries/{library}", "ALL_GNPS_cleaned.csv")
+    print(f"Attempting to download processed library {library}", flush=True)
+    print(f"Fetching file from /output/cleaned_libraries/{library}/ALL_GNPS_cleaned_enriched.csv", flush=True)
+    return send_from_directory(f"/output/cleaned_libraries/{library}", "ALL_GNPS_cleaned_enriched.csv", download_name=f"{library}_cleaned_enriched.csv")
 @app.route('/processed_gnps_library/<library>.json', methods=['GET'])
 def processed_gnps_library_json_download(library):
     """
     This endpoint is used to download the preprocessed data in JSON format.
     """
-    return send_from_directory(f"/output/cleaned_libraries/{library}", "ALL_GNPS_cleaned.json")
+    return send_from_directory(f"/output/cleaned_libraries/{library}", "ALL_GNPS_cleaned.json", download_name=f"{library}_cleaned.json")
 
 @app.route('/processed_gnps_library/<library>.mgf', methods=['GET'])
 def processed_gnps_library_mgf_download(library):
     """
     This endpoint is used to download the preprocessed data in MGF format.
     """
-    return send_from_directory(f"/output/cleaned_libraries/{library}", "ALL_GNPS_cleaned.mgf")
+    return send_from_directory(f"/output/cleaned_libraries/{library}", "ALL_GNPS_cleaned.mgf", download_name=f"{library}_cleaned.mgf")
 
 # Admin
 from tasks_gnps import generate_gnps_data
@@ -269,7 +268,7 @@ def run_pipelines():
     print("Running cleaning pipeline, result:", result, flush=True)
     return "Running cleaning pipeline"
 
-@app.route('/admin/debug/run_new_pipeline', methods=['GET'])
+@app.route('/admin/debug/run_multiplex_pipeline', methods=['GET'])
 def run_new_pipeline():
     """
     This API call is used to test the new pipeline in GNPS2

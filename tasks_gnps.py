@@ -86,7 +86,7 @@ def run_cleaning_pipeline():
 @celery_instance.task(time_limit=64_800) # 18 Hour Timeout
 def run_cleaning_pipeline_library_specific(library):
 
-    output_dir = Path(f"/output/cleaned_libaries/{library}/")
+    output_dir = Path(f"/output/cleaned_libraries/{library}/")
     if not output_dir.exists():
         output_dir.mkdir(parents=True, exist_ok=True)
     utils.run_cleaning_pipeline(f"/output/{library}.json", output_dir, no_massbank=True)

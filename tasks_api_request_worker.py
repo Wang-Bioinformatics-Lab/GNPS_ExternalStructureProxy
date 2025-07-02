@@ -44,7 +44,7 @@ def task_structure_classification():
         path_to_config = "/app/pipelines/structureClassification/nextflow.config"
         input_paths = [Path("/output/cleaned_data/ALL_GNPS_cleaned.csv")]
         # Get other inputs from haromized libraries
-        other_haromized_libraries = Path("/output/cleaned_libaries/").glob("**/*.csv")
+        other_haromized_libraries = Path("/output/cleaned_libraries/").glob("**/*.csv")
         input_paths.extend(other_haromized_libraries)
         output_path_static = Path("/output/structure_classification")
         output_path = Path("/internal-outputs/structure_classification")
