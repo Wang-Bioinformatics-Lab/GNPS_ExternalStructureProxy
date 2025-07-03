@@ -2,6 +2,7 @@ from celery import Celery
 import json
 import utils
 from pathlib import Path
+import re
 
 celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis', broker='pyamqp://guest@externalstructureproxy-rabbitmq/', )
 
@@ -42,19 +43,6 @@ def generate_gnps_data():
 
     utils._output_library_files(encriched_gnps_libraries_with_peaks, "/output/", "ALL_GNPS")
 
-    # MULTIPLEX-SYNTHESIS-LIBRARY-ALL
-    multiplex_all_re = r"MULTIPLEX-SYNTHESIS-LIBRARY-ALL-PARTITION-\d+"
-    multiplex_all_library_list = set(library_list_df[library_list_df["library"].str.contains(multiplex_all_re, regex=True)]["library"])
-    multiplex_all_encriched_gnps_libraries_with_peaks = [spectrum_dict for spectrum_dict in encriched_gnps_libraries_with_peaks if spectrum_dict["library_membership"] in multiplex_all_library_list]
-    
-    utils._output_library_files(multiplex_all_encriched_gnps_libraries_with_peaks, "/output/", "MULTIPLEX_ALL")
-
-    # MULTIPLEX-SYNTHESIS-LIBRARY-FILTERED
-    multiplex_filtered_re = r"MULTIPLEX-SYNTHESIS-LIBRARY-FILTERED-PARTITION-\d+"
-    multiplex_filtered_library_list = set(library_list_df[library_list_df["library"].str.contains(multiplex_filtered_re, regex=True)]["library"])
-    multiplex_filtered_encriched_gnps_libraries_with_peaks = [spectrum_dict for spectrum_dict in encriched_gnps_libraries_with_peaks if spectrum_dict["library_membership"] in multiplex_filtered_library_list]
-
-    utils._output_library_files(multiplex_filtered_encriched_gnps_libraries_with_peaks, "/output/", "MULTIPLEX_FILTERED")
     # with open("/output/ALL_GNPS.json", "w") as output_file:
     #     output_file.write(json.dumps(encriched_gnps_libraries_with_peaks))
 
@@ -72,8 +60,18 @@ def generate_gnps_data():
     
     #### MatchMS/ML Prep Pipeline ####
     run_cleaning_pipeline.delay()
-    run_cleaning_pipeline_library_specific.delay("MULTIPLEX_ALL")
-    run_cleaning_pipeline_library_specific.delay("MULTIPLEX_FILTERED")
+    # Multiplex libraries
+    output_dir = Path("/output/")
+    all_pattern = re.compile(r"MULTIPLEX-SYNTHESIS-LIBRARY-ALL-PARTITION-\d+\.json$")
+    filtered_pattern = re.compile(r"MULTIPLEX-SYNTHESIS-LIBRARY-FILTERED-PARTITION-\d+\.json$")
+
+    for file in output_dir.iterdir():
+        if all_pattern.match(file.name):
+            library_name = file.stem  # remove .json
+            run_cleaning_pipeline_library_specific.delay(library_name)
+        elif filtered_pattern.match(file.name):
+            library_name = file.stem
+            run_cleaning_pipeline_library_specific.delay(library_name)
 
 @celery_instance.task(time_limit=64_800) # 18 Hour Timeout
 def run_cleaning_pipeline():

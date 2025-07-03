@@ -17,6 +17,7 @@ from pathlib import Path
 from models import *
 from tasks_library_api_retrieve_worker import task_updategnpslibrary, task_computeheartbeat
 from typing import List
+import re
 
 @app.route('/', methods=['GET'])
 def homepage():
@@ -159,22 +160,33 @@ def gnpslibrary():
     preprocessed_list.append(library_dict)
 
     # Mulitplex All
-    library_dict = {}
-    library_dict["libraryname"]         = "MULTIPLEX-SYNTHESIS-ALL"
-    library_dict["processingpipeline"]  = 'GNPS Cleaning'
-    library_dict["csvlink"]             = "/processed_gnps_library/MULTIPLEX_ALL.csv"
-    library_dict["mgflink"]             = "/processed_gnps_library/MULTIPLEX_ALL.mgf"
-    library_dict["jsonlink"]            = "/processed_gnps_library/MULTIPLEX_ALL.json"
-    preprocessed_list.append(library_dict)
+    cleaned_libraries_dir = "/output/cleaned_libraries"
+    try:
+        for entry in sorted(os.listdir(cleaned_libraries_dir)):
+            if entry.startswith("MULTIPLEX-SYNTHESIS-LIBRARY-ALL-PARTITION-"):
+                library_dict = {}
+                library_dict["libraryname"] = entry
+                library_dict["processingpipeline"] = 'GNPS Cleaning'
+                library_dict["csvlink"] = f"/processed_gnps_library/{entry}.csv"
+                library_dict["mgflink"] = f"/processed_gnps_library/{entry}.mgf"
+                library_dict["jsonlink"] = f"/processed_gnps_library/{entry}.json"
+                preprocessed_list.append(library_dict)
+    except Exception as e:
+        print(f"Error listing MULTIPLEX partitions: {e}", flush=True)
 
     # Multiplex Filtered
-    library_dict = {}
-    library_dict["libraryname"]         = "MULTIPLEX-SYNTHESIS-FILTERED"
-    library_dict["processingpipeline"]  = 'GNPS Cleaning'
-    library_dict["csvlink"]             = "/processed_gnps_library/MULTIPLEX_FILTERED.csv"
-    library_dict["mgflink"]             = "/processed_gnps_library/MULTIPLEX_FILTERED.mgf"
-    library_dict["jsonlink"]            = "/processed_gnps_library/MULTIPLEX_FILTERED.json"
-    preprocessed_list.append(library_dict)
+    try:
+        for entry in sorted(os.listdir(cleaned_libraries_dir)):
+            if entry.startswith("MULTIPLEX-SYNTHESIS-LIBRARY-FILTERED-PARTITION-"):
+                library_dict = {}
+                library_dict["libraryname"] = entry
+                library_dict["processingpipeline"] = 'GNPS Cleaning'
+                library_dict["csvlink"] = f"/processed_gnps_library/{entry}.csv"
+                library_dict["mgflink"] = f"/processed_gnps_library/{entry}.mgf"
+                library_dict["jsonlink"] = f"/processed_gnps_library/{entry}.json"
+                preprocessed_list.append(library_dict)
+    except Exception as e:
+        print(f"Error listing MULTIPLEX FILTERED partitions: {e}", flush=True)
 
     ####    ####
     
@@ -275,9 +287,19 @@ def run_new_pipeline():
     """
     from tasks_gnps import run_cleaning_pipeline_library_specific
 
-    run_cleaning_pipeline_library_specific.delay("MULTIPLEX_ALL")
-    run_cleaning_pipeline_library_specific.delay("MULTIPLEX_FILTERED")
-    return "Running new pipeline"
+    # Multiplex libraries
+    output_dir = Path("/output/")
+    all_pattern = re.compile(r"MULTIPLEX-SYNTHESIS-LIBRARY-ALL-PARTITION-\d+\.json$")
+    filtered_pattern = re.compile(r"MULTIPLEX-SYNTHESIS-LIBRARY-FILTERED-PARTITION-\d+\.json$")
+
+    for file in output_dir.iterdir():
+        if all_pattern.match(file.name):
+            library_name = file.stem  # remove .json
+            run_cleaning_pipeline_library_specific.delay(library_name)
+        elif filtered_pattern.match(file.name):
+            library_name = file.stem
+            run_cleaning_pipeline_library_specific.delay(library_name)
+    return "Running new pipeline for all multiplex libraries"
 
 @app.route('/admin/update_api_cache', methods=['GET'])
 def update_api_cache():
