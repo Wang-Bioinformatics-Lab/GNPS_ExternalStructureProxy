@@ -135,7 +135,10 @@ def gnpslibrary():
     filename = "/output/ALL_GNPS.json"
 
     # check the last modified date
-    last_modified = str(datetime.datetime.fromtimestamp(os.path.getmtime(filename)))
+    try:
+        last_modified = str(datetime.datetime.fromtimestamp(os.path.getmtime(filename)))
+    except:
+        last_modified = "Unknown"
     
     #### Preprocessed Data ####
     preprocessed_list = []
