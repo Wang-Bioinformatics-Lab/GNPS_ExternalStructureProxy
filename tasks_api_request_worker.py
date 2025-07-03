@@ -80,7 +80,7 @@ def task_structure_classification():
         ])
 
         # Print the output of /nextflow log to sys.stderr
-        log_output = subprocess.run(["/nextflow", "log", path_to_script], capture_output=True, text=True)
+        log_output = subprocess.run(["nextflow", "log", path_to_script], capture_output=True, text=True)
 
 
         # Output to static output
