@@ -12,6 +12,10 @@ services:
     ports:
       - "5010:5000"
     command: /app/run_server.sh
+    deploy:
+      resources:
+        limits:
+          memory: 8G
     logging:
       driver: "json-file"
       options:
@@ -31,6 +35,10 @@ services:
     command: /app/run_library_generation_worker.sh
     depends_on: 
       - externalstructureproxy-rabbitmq
+    deploy:
+      resources:
+        limits:
+          memory: 32G
     logging:
       driver: "json-file"
       options:
@@ -49,6 +57,10 @@ services:
     command: /app/run_api_request_worker.sh
     depends_on: 
       - externalstructureproxy-rabbitmq
+    deploy:
+      resources:
+        limits:
+          memory: 8G
     logging:
       driver: "json-file"
       options:
@@ -69,6 +81,10 @@ services:
     command: /app/run_library_api_retrieve_worker.sh
     depends_on: 
       - externalstructureproxy-rabbitmq
+    deploy:
+      resources:
+        limits:
+          memory: 8G
     logging:
       driver: "json-file"
       options:
@@ -82,6 +98,10 @@ services:
     restart: always
     volumes:
       - ./rabbitmq_advanced.config:/etc/rabbitmq/advanced.config:ro
+    deploy:
+      resources:
+        limits:
+          memory: 8G
     logging:
       driver: "json-file"
       options:
@@ -96,6 +116,10 @@ services:
       - default
     restart: always
     command: redis-server /usr/local/etc/redis/redis.conf
+    deploy:
+      resources:
+        limits:
+          memory: 8G
     logging:
       driver: "json-file"
       options:
