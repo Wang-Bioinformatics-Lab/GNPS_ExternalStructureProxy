@@ -10,6 +10,14 @@ celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis'
 
 @celery_instance.task()
 def generate_gnps_data():
+
+    # TODO CALL THE NEXTFLOW HERE
+    print("HERE")
+
+    #### MatchMS/ML Prep Pipeline ####
+    run_cleaning_pipeline.delay()
+
+
     # Loading all GNPS Library Spectra, without peaks
     gnps_libraries, library_list_df = utils.load_GNPS()
 
@@ -61,8 +69,7 @@ def generate_gnps_data():
     # with open("/output/ALL_GNPS.msp", "wb") as output_file:
     #     output_file.write(msp_string.encode("ascii", "ignore"))
     
-    #### MatchMS/ML Prep Pipeline ####
-    run_cleaning_pipeline.delay()
+    
 
 @celery_instance.task(time_limit=64_800) # 18 Hour Timeout
 def run_cleaning_pipeline():
@@ -72,12 +79,12 @@ def run_cleaning_pipeline():
 
 celery_instance.conf.beat_schedule = {
     "generate_gnps_data": {
-        "task": "tasks_gnps.generate_gnps_data",
+        "task": "tasks_library_generation.generate_gnps_data",
         "schedule": 86400   # Every 24 hours
     }
 }
 
 celery_instance.conf.task_routes = {
-    'tasks_gnps.generate_gnps_data': {'queue': 'beat_worker'},
-    'tasks_gnps.run_cleaning_pipeline': {'queue': 'beat_worker'},
+    'tasks_library_generation.generate_gnps_data': {'queue': 'beat_worker'},
+    'tasks_library_generation.run_cleaning_pipeline': {'queue': 'beat_worker'},
 }
