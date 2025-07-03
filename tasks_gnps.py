@@ -1,10 +1,8 @@
 from celery import Celery
-import os
 import json
-import requests
 import utils
-import pandas as pd
-import datetime
+from pathlib import Path
+import re
 
 celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis', broker='pyamqp://guest@externalstructureproxy-rabbitmq/', )
 
@@ -44,7 +42,6 @@ def generate_gnps_data():
     utils._output_library_files(non_propogated_encriched_gnps_libraries_with_peaks, "/output/", "ALL_GNPS_NO_PROPOGATED")
 
     utils._output_library_files(encriched_gnps_libraries_with_peaks, "/output/", "ALL_GNPS")
-    
 
     # with open("/output/ALL_GNPS.json", "w") as output_file:
     #     output_file.write(json.dumps(encriched_gnps_libraries_with_peaks))
@@ -63,12 +60,34 @@ def generate_gnps_data():
     
     #### MatchMS/ML Prep Pipeline ####
     run_cleaning_pipeline.delay()
+    # Multiplex libraries
+    output_dir = Path("/output/")
+    all_pattern = re.compile(r"MULTIPLEX-SYNTHESIS-LIBRARY-ALL-PARTITION-\d+\.json$")
+    filtered_pattern = re.compile(r"MULTIPLEX-SYNTHESIS-LIBRARY-FILTERED-PARTITION-\d+\.json$")
+
+    for file in output_dir.iterdir():
+        if all_pattern.match(file.name):
+            library_name = file.stem  # remove .json
+            run_cleaning_pipeline_library_specific.delay(library_name)
+        elif filtered_pattern.match(file.name):
+            library_name = file.stem
+            run_cleaning_pipeline_library_specific.delay(library_name)
 
 @celery_instance.task(time_limit=64_800) # 18 Hour Timeout
 def run_cleaning_pipeline():
     utils.run_cleaning_pipeline("/output/ALL_GNPS_NO_PROPOGATED.json", "/output/cleaned_data/")
     
     return "Finished matchms cleaning pipeline"
+
+@celery_instance.task(time_limit=64_800) # 18 Hour Timeout
+def run_cleaning_pipeline_library_specific(library):
+
+    output_dir = Path(f"/output/cleaned_libraries/{library}/")
+    if not output_dir.exists():
+        output_dir.mkdir(parents=True, exist_ok=True)
+    utils.run_cleaning_pipeline(f"/output/{library}.json", output_dir, no_massbank=True)
+    
+    return f"Finished matchms cleaning pipeline for {library}"
 
 celery_instance.conf.beat_schedule = {
     "generate_gnps_data": {
@@ -80,4 +99,5 @@ celery_instance.conf.beat_schedule = {
 celery_instance.conf.task_routes = {
     'tasks_gnps.generate_gnps_data': {'queue': 'beat_worker'},
     'tasks_gnps.run_cleaning_pipeline': {'queue': 'beat_worker'},
+    'tasks_gnps.run_cleaning_pipeline_library_specific': {'queue': 'beat_worker'},
 }
