@@ -35,7 +35,7 @@ def heartbeat():
 
     status_obj["percent_free"] = percent_free
 
-    if percent_free < 0.1:
+    if percent_free < 0.05:
         status_obj["status"] = "error"
         status_obj["message"] = "Disk is almost full"
 
