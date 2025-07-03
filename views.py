@@ -205,7 +205,7 @@ def processed_gnps_data_gnps_cleaned_json_download():
     return send_from_directory("/output/cleaned_data/json_outputs", "ALL_GNPS_cleaned.json")
 
 # Admin
-from tasks_library_generation import generate_gnps_data
+from tasks_library_generation_worker import generate_gnps_data
 @app.route('/admin/updatelibraries', methods=['GET'])
 def updatelibraries():
     generate_gnps_data.delay()

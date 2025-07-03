@@ -7,3 +7,5 @@ notebooks
 data
 database
 internal-outputs
+pipelines/Library_Pulldown_Workflow
+pipelines/conda_envs

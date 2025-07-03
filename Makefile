@@ -34,3 +34,6 @@ server-compose-production-interactive:
 
 init_modules:
 	git submodule update --init --recursive
+
+attach-library:
+	docker exec -i -t externalstructureproxy-library_generation_worker /bin/bash

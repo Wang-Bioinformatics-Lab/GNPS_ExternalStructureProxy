@@ -17,16 +17,17 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  externalstructureproxy-beat1:
+  externalstructureproxy-library_generation_worker:
     build: .
-    container_name: externalstructureproxy-beat1
+    container_name: externalstructureproxy-library_generation_worker
     volumes:
         - ./output:/output:rw
+        - ./pipelines:/app/pipelines:rw
         - /home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:/home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:ro
     networks:
       - default
     restart: always
-    command: /app/run_beat.sh
+    command: /app/run_library_generation_worker.sh
     depends_on: 
       - externalstructureproxy-rabbitmq
     logging:
@@ -47,6 +48,11 @@ services:
     command: /app/run_api_request_worker.sh
     depends_on: 
       - externalstructureproxy-rabbitmq
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 
   externalstructureproxy-library_api_retrieve_worker:
@@ -75,6 +81,11 @@ services:
     restart: always
     volumes:
       - ./rabbitmq_advanced.config:/etc/rabbitmq/advanced.config:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   externalstructureproxy-redis:
     image: redis:latest
@@ -84,6 +95,11 @@ services:
       - default
     restart: always
     command: redis-server /usr/local/etc/redis/redis.conf
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 networks:
   nginx-net:

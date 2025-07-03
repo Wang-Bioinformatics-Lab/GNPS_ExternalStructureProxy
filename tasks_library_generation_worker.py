@@ -5,6 +5,7 @@ import requests
 import utils
 import pandas as pd
 import datetime
+import subprocess
 
 celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis', broker='pyamqp://guest@externalstructureproxy-rabbitmq/', )
 
@@ -12,10 +13,32 @@ celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis'
 def generate_gnps_data():
 
     # TODO CALL THE NEXTFLOW HERE
-    print("HERE")
+    import sys
+    print("XXXXXXXXXXXXXXXXXXXXXXXXXXX", file=sys.stderr, flush=True)
+
+    path_to_script  = "/app/pipelines/Library_Pulldown_Workflow/nf_workflow.nf"
+    stdout_log = "/output/library_generation_nextflow.log"
+    output_directory = "/output"
+    if not os.path.isdir(output_directory):
+        os.makedirs(output_directory, exist_ok=True)
+    
+    # Use subprocess to run a nextflow script to generate all everything we need
+    cmd = " ".join([
+        "nextflow", "run", path_to_script, 
+        "-c", "/app/pipelines/Library_Pulldown_Workflow/nextflow_external.config",
+        "--publishdir", output_directory,
+    ])
+    cmd = "export MAMBA_ALWAYS_YES='true' && {} > {}".format(cmd, stdout_log)
+    os.system(cmd)
+    
+    return ""
 
     #### MatchMS/ML Prep Pipeline ####
     run_cleaning_pipeline.delay()
+
+    return ""
+
+    ## TODO: REMOVE BELOW
 
 
     # Loading all GNPS Library Spectra, without peaks
@@ -79,12 +102,12 @@ def run_cleaning_pipeline():
 
 celery_instance.conf.beat_schedule = {
     "generate_gnps_data": {
-        "task": "tasks_library_generation.generate_gnps_data",
+        "task": "tasks_library_generation_worker.generate_gnps_data",
         "schedule": 86400   # Every 24 hours
     }
 }
 
 celery_instance.conf.task_routes = {
-    'tasks_library_generation.generate_gnps_data': {'queue': 'beat_worker'},
-    'tasks_library_generation.run_cleaning_pipeline': {'queue': 'beat_worker'},
+    'tasks_library_generation_worker.generate_gnps_data': {'queue': 'tasks_library_generation_worker'},
+    'tasks_library_generation_worker.run_cleaning_pipeline': {'queue': 'tasks_library_generation_worker'},
 }
