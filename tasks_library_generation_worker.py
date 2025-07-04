@@ -19,6 +19,7 @@ def generate_gnps_data():
     path_to_script  = "/app/pipelines/Library_Pulldown_Workflow/nf_workflow.nf"
     stdout_log = "/output/library_generation_nextflow.log"
     output_directory = "/output"
+    cache_summary_location = "/output/library_summaries"
     if not os.path.isdir(output_directory):
         os.makedirs(output_directory, exist_ok=True)
     
@@ -27,6 +28,7 @@ def generate_gnps_data():
         "nextflow", "run", path_to_script, 
         "-c", "/app/pipelines/Library_Pulldown_Workflow/nextflow_external.config",
         "--publishdir", output_directory,
+        "--cachelibrariesdir", cache_summary_location,
     ])
     cmd = "export MAMBA_ALWAYS_YES='true' && {} > {}".format(cmd, stdout_log)
     os.system(cmd)

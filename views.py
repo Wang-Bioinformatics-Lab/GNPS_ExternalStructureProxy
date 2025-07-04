@@ -25,6 +25,9 @@ def homepage():
 
 @app.route('/heartbeat', methods=['GET'])
 def heartbeat():
+    # This is a test for the queuing system
+    task = task_computeheartbeat.delay()
+
     status_obj = {}
     status_obj["status"] = "up"
 
@@ -94,9 +97,6 @@ def gnpslibraryformattedwithpeaksjson():
 # Download Page for Spectral Libraries
 @app.route('/gnpslibrary', methods=['GET'])
 def gnpslibrary():
-    # This is a test
-    task = task_computeheartbeat.delay()
-
     library_list = pd.read_csv("library_names.tsv").to_dict(orient="records")
 
     for library_dict in library_list:
@@ -216,9 +216,6 @@ def updatelibraries():
     
 @app.route('/admin/count', methods=['GET'])
 def admincount():
-    # This is a test
-    task = task_computeheartbeat.delay()
-    
     return str(LibraryEntry.select().count())
 
 @app.route('/admin/run_pipelines', methods=['GET'])
@@ -226,7 +223,7 @@ def run_pipelines():
     """
     This API call is used to test the matchms cleaning pipeline in GNPS2
     """
-    from tasks_gnps import run_cleaning_pipeline
+    from tasks_library_generation_worker import run_cleaning_pipeline
     result = run_cleaning_pipeline.delay()
     print("Running cleaning pipeline, result:", result, flush=True)
     return "Running cleaning pipeline"
