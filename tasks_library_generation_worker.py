@@ -30,7 +30,7 @@ def generate_gnps_data():
         "--publishdir", output_directory,
         "--cachelibrariesdir", cache_summary_location,
     ])
-    cmd = "export MAMBA_ALWAYS_YES='true' && {} > {}".format(cmd, stdout_log)
+    cmd = "export MAMBA_ALWAYS_YES='true' && {} >> {}".format(cmd, stdout_log)
     os.system(cmd)
     
     #### MatchMS/ML Prep Pipeline ####

@@ -80,25 +80,29 @@ def run_cleaning_pipeline(gnps_json_file, output_directory):
     """
     
     """
-    path_to_script  = "/app/pipelines//gnps_ml_processing_workflow/GNPS_ML_Processing/nf_workflow.nf"
+    path_to_script  = "/app/pipelines/gnps_ml_processing_workflow/GNPS_ML_Processing/nf_workflow.nf"
     api_cache_path  = "/output/structure_classification/"
     if not os.path.isdir(output_directory):
         os.makedirs(output_directory, exist_ok=True)
+
+    stdout_log = "/output/gnps_ml_processing_nextflow.log"
+    
+    #Making a specific location in the pipelines folder so its outside of docker
+    conda_env_path = "/app/pipelines/conda_envs/gnps2_ml_processing_env"
+    matchms_conda_path = "/app/pipelines/conda_envs/matchms_env"
     
     # Use subprocess to run a nextflow script to generate all everything we need
     cmd = " ".join([
                                     "nextflow", "run", path_to_script,
                                     "--GNPS_json_path", gnps_json_file,
                                     "--output_dir", output_directory,
-                                    "--conda_path", os.path.join(output_directory, "gnps2_ml_processing_env"),
-                                    "--matchms_conda_path", os.path.join(output_directory, "matchms_env"),
+                                    "--conda_path", conda_env_path,
+                                    "--matchms_conda_path", matchms_conda_path,
                                     "--api_cache", api_cache_path,
                                     "-with-report", os.path.join(output_directory, "ml_pipeline_report.html"),
                                 ])
 
-    result = subprocess.run(
-                            cmd,
-                            capture_output=True,
-                            text=True)
-    print(result, flush=True)
-    return result
+    cmd = "export MAMBA_ALWAYS_YES='true' && {} >> {}".format(cmd, stdout_log)
+    os.system(cmd)
+
+    return 

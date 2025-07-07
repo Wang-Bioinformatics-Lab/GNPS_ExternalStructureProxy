@@ -20,6 +20,9 @@ from typing import List
 
 @app.route('/', methods=['GET'])
 def homepage():
+    # This is a test for the queuing system
+    task = task_computeheartbeat.delay()
+    
     # redirect to gnpslibrary
     return redirect(url_for('gnpslibrary'))
 
@@ -129,7 +132,11 @@ def gnpslibrary():
     library_list.append(library_dict)
 
     # We should check how many entries in our database
-    number_of_spectra = LibraryEntry.select().count()
+    try:
+        number_of_spectra = LibraryEntry.select().count()
+    except:
+        task = task_computeheartbeat.delay()
+        number_of_spectra = -1
 
     # report when the last time we actually updated the GNPS exports
     filename = "/output/ALL_GNPS.json"

@@ -1,6 +1,7 @@
 output
 test
 logs.txt
+logs
 ftpproxy
 workflow
 notebooks

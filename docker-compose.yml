@@ -3,11 +3,14 @@ version: '3'
 services:
   externalstructureproxy-web:
     build: .
+    container_name: externalstructureproxy-web
     volumes:
       - ./output:/output:rw
       - ./data:/app/data:ro
       - ./database:/app/database:ro
       - ./logs:/app/logs:rw
+    networks:
+      - default
     restart: always
     ports:
       - "5010:5000"
@@ -93,6 +96,7 @@ services:
 
   externalstructureproxy-rabbitmq:
     image: rabbitmq:latest
+    container_name: externalstructureproxy-rabbitmq
     networks:
       - default
     restart: always
@@ -110,6 +114,7 @@ services:
 
   externalstructureproxy-redis:
     image: redis:latest
+    container_name: externalstructureproxy-redis
     volumes:
     - ./redis.conf:/usr/local/etc/redis/redis.conf
     networks:
