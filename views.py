@@ -245,6 +245,41 @@ def update_api_cache():
     print("Running structure classification, result:", result, flush=True)
     return "Running structure classification"
 
+
+# These are the log reports
+
+@app.route('/pipelinestatus.json', methods=['GET'])
+def pipelinestatus():
+    library_generation_log = "/output/library_generation_nextflow.log"
+    library_generation_last_modified = os.path.getmtime(library_generation_log)
+    library_generation_last_modified = str(pd.to_datetime(library_generation_last_modified, unit='s').tz_localize('UTC').tz_convert('US/Pacific'))
+
+    ml_cleaning_log = "/output/gnps_ml_processing_nextflow.log"
+    ml_cleaning_last_modified = os.path.getmtime(ml_cleaning_log)
+    ml_cleaning_last_modified = str(pd.to_datetime(ml_cleaning_last_modified, unit='s').tz_localize('UTC').tz_convert('US/Pacific'))
+
+    api_caching_log = "/output/structure_classification.log"
+    api_caching_last_modified = os.path.getmtime(api_caching_log)
+    api_caching_last_modified = str(pd.to_datetime(api_caching_last_modified, unit='s').tz_localize('UTC').tz_convert('US/Pacific'))
+
+    return_dict = {}
+    return_dict["library_generation"] = {
+        "last_modified": library_generation_last_modified,
+        "log_file": library_generation_log
+    }
+    return_dict["ml_cleaning"] = {
+        "last_modified": ml_cleaning_last_modified,
+        "log_file": ml_cleaning_log
+    }
+    return_dict["api_caching"] = {
+        "last_modified": api_caching_last_modified,
+        "log_file": api_caching_log
+    }
+
+    return jsonify(return_dict)    
+
+
+
 @app.route('/download_cleaning_report', methods=['GET']) # TODO: No parameters for now
 def download_cleaning_report():
     return send_from_directory(directory="/output/cleaned_data/", path="ml_pipeline_report.html")
@@ -278,4 +313,6 @@ def get_latest_api_update():
         "Classyfire.log",
         "NPClassifier.log"
     ]
+
     return get_change_time(root_dir, relevant_logs)
+
