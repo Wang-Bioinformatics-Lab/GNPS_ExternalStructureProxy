@@ -4,3 +4,6 @@
 [submodule "pipelines/structureClassification"]
 	path = pipelines/structureClassification
 	url = https://github.com/YasinEl/structureClassification.git
+[submodule "pipelines/Library_Pulldown_Workflow"]
+	path = pipelines/Library_Pulldown_Workflow
+	url = https://github.com/Wang-Bioinformatics-Lab/Library_Pulldown_Workflow.git

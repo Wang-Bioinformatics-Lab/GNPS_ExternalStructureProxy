@@ -60,7 +60,7 @@ def task_updategnpslibrary(accession):
 
         # save the entry
         library_entry.save()
-    
+        
     return
 
 

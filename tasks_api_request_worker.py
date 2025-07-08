@@ -46,10 +46,13 @@ def task_structure_classification():
         output_path_static = Path("/output/structure_classification")
         output_path = Path("/internal-outputs/structure_classification")
 
+        # Ensure input files exist
         for input_path in input_paths:
             if not input_path.exists():
                 print(f"Input file {input_path} does not exist. Exiting task.", file=sys.stderr, flush=True)
                 return "Input file not found"
+
+        log_output_path = Path("/output/structure_classification.log")
 
         if not os.path.isdir(output_path):
             os.makedirs(output_path, exist_ok=True)
@@ -76,8 +79,8 @@ def task_structure_classification():
             'report_path': output_path_static / "api_caching_report.html",
         }
 
-        subprocess.run([
-            "/nextflow", "run", path_to_script,
+        cmd = " ".join([
+            "nextflow", "run", path_to_script,
             "--structure_csv", str(params['structure_csv']),
             "--output_directory_Classyfire", str(params['output_directory_Classyfire']),
             "--output_directory_Npclassifier", str(params['output_directory_Npclassifier']),
@@ -88,9 +91,8 @@ def task_structure_classification():
             "-c", path_to_config,
         ])
 
-        # Print the output of /nextflow log to sys.stderr
-        log_output = subprocess.run(["/nextflow", "log", path_to_script], capture_output=True, text=True)
-
+        cmd = "export MAMBA_ALWAYS_YES='true' && {} >> {}".format(cmd, log_output_path)
+        os.system(cmd)
 
         # Output to static output
         if not os.path.isdir(output_path_static):

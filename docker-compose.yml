@@ -3,32 +3,45 @@ version: '3'
 services:
   externalstructureproxy-web:
     build: .
+    container_name: externalstructureproxy-web
     volumes:
       - ./output:/output:rw
       - ./data:/app/data:ro
       - ./database:/app/database:ro
+      - ./logs:/app/logs:rw
+    networks:
+      - default
     restart: always
     ports:
       - "5010:5000"
     command: /app/run_server.sh
+    deploy:
+      resources:
+        limits:
+          memory: 8G
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
 
-  externalstructureproxy-beat1:
+  externalstructureproxy-library_generation_worker:
     build: .
-    container_name: externalstructureproxy-beat1
+    container_name: externalstructureproxy-library_generation_worker
     volumes:
         - ./output:/output:rw
+        - ./pipelines:/app/pipelines:rw
         - /home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:/home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:ro
     networks:
       - default
     restart: always
-    command: /app/run_beat.sh
+    command: /app/run_library_generation_worker.sh
     depends_on: 
       - externalstructureproxy-rabbitmq
+    deploy:
+      resources:
+        limits:
+          memory: 64G
     logging:
       driver: "json-file"
       options:
@@ -47,6 +60,15 @@ services:
     command: /app/run_api_request_worker.sh
     depends_on: 
       - externalstructureproxy-rabbitmq
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 
   externalstructureproxy-library_api_retrieve_worker:
@@ -62,6 +84,10 @@ services:
     command: /app/run_library_api_retrieve_worker.sh
     depends_on: 
       - externalstructureproxy-rabbitmq
+    deploy:
+      resources:
+        limits:
+          memory: 8G
     logging:
       driver: "json-file"
       options:
@@ -70,20 +96,40 @@ services:
 
   externalstructureproxy-rabbitmq:
     image: rabbitmq:latest
+    container_name: externalstructureproxy-rabbitmq
     networks:
       - default
     restart: always
     volumes:
       - ./rabbitmq_advanced.config:/etc/rabbitmq/advanced.config:ro
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   externalstructureproxy-redis:
     image: redis:latest
+    container_name: externalstructureproxy-redis
     volumes:
     - ./redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       - default
     restart: always
     command: redis-server /usr/local/etc/redis/redis.conf
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 networks:
   nginx-net:

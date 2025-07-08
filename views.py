@@ -21,11 +21,17 @@ import re
 
 @app.route('/', methods=['GET'])
 def homepage():
+    # This is a test for the queuing system
+    task = task_computeheartbeat.delay()
+    
     # redirect to gnpslibrary
     return redirect(url_for('gnpslibrary'))
 
 @app.route('/heartbeat', methods=['GET'])
 def heartbeat():
+    # This is a test for the queuing system
+    task = task_computeheartbeat.delay()
+
     status_obj = {}
     status_obj["status"] = "up"
 
@@ -36,7 +42,7 @@ def heartbeat():
 
     status_obj["percent_free"] = percent_free
 
-    if percent_free < 0.1:
+    if percent_free < 0.05:
         status_obj["status"] = "error"
         status_obj["message"] = "Disk is almost full"
 
@@ -95,9 +101,6 @@ def gnpslibraryformattedwithpeaksjson():
 # Download Page for Spectral Libraries
 @app.route('/gnpslibrary', methods=['GET'])
 def gnpslibrary():
-    # This is a test
-    task = task_computeheartbeat.delay()
-
     library_list = pd.read_csv("library_names.tsv").to_dict(orient="records")
 
     for library_dict in library_list:
@@ -130,13 +133,20 @@ def gnpslibrary():
     library_list.append(library_dict)
 
     # We should check how many entries in our database
-    number_of_spectra = LibraryEntry.select().count()
+    try:
+        number_of_spectra = LibraryEntry.select().count()
+    except:
+        task = task_computeheartbeat.delay()
+        number_of_spectra = -1
 
     # report when the last time we actually updated the GNPS exports
     filename = "/output/ALL_GNPS.json"
 
     # check the last modified date
-    last_modified = str(datetime.datetime.fromtimestamp(os.path.getmtime(filename)))
+    try:
+        last_modified = str(datetime.datetime.fromtimestamp(os.path.getmtime(filename)))
+    except:
+        last_modified = "Unknown"
     
     #### Preprocessed Data ####
     preprocessed_list = []
@@ -257,7 +267,7 @@ def processed_gnps_library_mgf_download(library):
     return send_from_directory(f"/output/cleaned_libraries/{library}", "ALL_GNPS_cleaned.mgf", download_name=f"{library}_cleaned.mgf")
 
 # Admin
-from tasks_gnps import generate_gnps_data
+from tasks_library_generation_worker import generate_gnps_data
 @app.route('/admin/updatelibraries', methods=['GET'])
 def updatelibraries():
     generate_gnps_data.delay()
@@ -265,9 +275,6 @@ def updatelibraries():
     
 @app.route('/admin/count', methods=['GET'])
 def admincount():
-    # This is a test
-    task = task_computeheartbeat.delay()
-    
     return str(LibraryEntry.select().count())
 
 @app.route('/admin/run_pipelines', methods=['GET'])
@@ -275,7 +282,7 @@ def run_pipelines():
     """
     This API call is used to test the matchms cleaning pipeline in GNPS2
     """
-    from tasks_gnps import run_cleaning_pipeline
+    from tasks_library_generation_worker import run_cleaning_pipeline
     result = run_cleaning_pipeline.delay()
     print("Running cleaning pipeline, result:", result, flush=True)
     return "Running cleaning pipeline"
@@ -311,6 +318,41 @@ def update_api_cache():
     print("Running structure classification, result:", result, flush=True)
     return "Running structure classification"
 
+
+# These are the log reports
+
+@app.route('/pipelinestatus.json', methods=['GET'])
+def pipelinestatus():
+    library_generation_log = "/output/library_generation_nextflow.log"
+    library_generation_last_modified = os.path.getmtime(library_generation_log)
+    library_generation_last_modified = str(pd.to_datetime(library_generation_last_modified, unit='s').tz_localize('UTC').tz_convert('US/Pacific'))
+
+    ml_cleaning_log = "/output/gnps_ml_processing_nextflow.log"
+    ml_cleaning_last_modified = os.path.getmtime(ml_cleaning_log)
+    ml_cleaning_last_modified = str(pd.to_datetime(ml_cleaning_last_modified, unit='s').tz_localize('UTC').tz_convert('US/Pacific'))
+
+    api_caching_log = "/output/structure_classification.log"
+    api_caching_last_modified = os.path.getmtime(api_caching_log)
+    api_caching_last_modified = str(pd.to_datetime(api_caching_last_modified, unit='s').tz_localize('UTC').tz_convert('US/Pacific'))
+
+    return_dict = {}
+    return_dict["library_generation"] = {
+        "last_modified": library_generation_last_modified,
+        "log_file": library_generation_log
+    }
+    return_dict["ml_cleaning"] = {
+        "last_modified": ml_cleaning_last_modified,
+        "log_file": ml_cleaning_log
+    }
+    return_dict["api_caching"] = {
+        "last_modified": api_caching_last_modified,
+        "log_file": api_caching_log
+    }
+
+    return jsonify(return_dict)    
+
+
+
 @app.route('/download_cleaning_report', methods=['GET']) # TODO: No parameters for now
 def download_cleaning_report():
     return send_from_directory(directory="/output/cleaned_data/", path="ml_pipeline_report.html")
@@ -344,4 +386,6 @@ def get_latest_api_update():
         "Classyfire.log",
         "NPClassifier.log"
     ]
+
     return get_change_time(root_dir, relevant_logs)
+
