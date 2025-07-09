@@ -6,6 +6,8 @@ import utils
 import pandas as pd
 import datetime
 import subprocess
+from pathlib import Path
+import re
 
 celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis', broker='pyamqp://guest@externalstructureproxy-rabbitmq/', )
 
@@ -35,6 +37,18 @@ def generate_gnps_data():
     
     #### MatchMS/ML Prep Pipeline ####
     run_cleaning_pipeline.delay()
+    # Multiplex libraries
+    output_dir = Path("/output/")
+    all_pattern = re.compile(r"MULTIPLEX-SYNTHESIS-LIBRARY-ALL-PARTITION-\d+\.json$")
+    filtered_pattern = re.compile(r"MULTIPLEX-SYNTHESIS-LIBRARY-FILTERED-PARTITION-\d+\.json$")
+
+    for file in output_dir.iterdir():
+        if all_pattern.match(file.name):
+            library_name = file.stem  # remove .json
+            run_cleaning_pipeline_library_specific.delay(library_name)
+        elif filtered_pattern.match(file.name):
+            library_name = file.stem
+            run_cleaning_pipeline_library_specific.delay(library_name)
 
     return ""
 
@@ -54,7 +68,19 @@ celery_instance.conf.beat_schedule = {
     }
 }
 
+@celery_instance.task(time_limit=64_800) # 18 Hour Timeout
+def run_cleaning_pipeline_library_specific(library):
+    print(f"Executing cleaning pipeline for library: {library}", flush=True)
+
+    output_dir = Path(f"/output/cleaned_libraries/{library}/")
+    if not output_dir.exists():
+        output_dir.mkdir(parents=True, exist_ok=True)
+    utils.run_cleaning_pipeline(f"/output/{library}.json", output_dir, no_massbank=True)
+    
+    return f"Finished matchms cleaning pipeline for {library}"
+
 celery_instance.conf.task_routes = {
     'tasks_library_generation_worker.generate_gnps_data': {'queue': 'tasks_library_generation_worker'},
     'tasks_library_generation_worker.run_cleaning_pipeline': {'queue': 'tasks_library_generation_worker'},
+    'tasks_library_generation_worker.run_cleaning_pipeline_library_specific': {'queue': 'tasks_library_generation_worker'},
 }

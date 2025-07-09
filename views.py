@@ -17,6 +17,7 @@ from pathlib import Path
 from models import *
 from tasks_library_api_retrieve_worker import task_updategnpslibrary, task_computeheartbeat
 from typing import List
+import re
 
 @app.route('/', methods=['GET'])
 def homepage():
@@ -167,7 +168,36 @@ def gnpslibrary():
     library_dict["mgflink"] = "/processed_gnps_data/matchms.mgf"
     library_dict["jsonlink"] = None
     preprocessed_list.append(library_dict)
-    
+
+    # Mulitplex All
+    cleaned_libraries_dir = "/output/cleaned_libraries"
+    try:
+        for entry in sorted(os.listdir(cleaned_libraries_dir)):
+            if entry.startswith("MULTIPLEX-SYNTHESIS-LIBRARY-ALL-PARTITION-"):
+                library_dict = {}
+                library_dict["libraryname"] = entry
+                library_dict["processingpipeline"] = 'GNPS Cleaning'
+                library_dict["csvlink"] = f"/processed_gnps_library/{entry}.csv"
+                library_dict["mgflink"] = f"/processed_gnps_library/{entry}.mgf"
+                library_dict["jsonlink"] = f"/processed_gnps_library/{entry}.json"
+                preprocessed_list.append(library_dict)
+    except Exception as e:
+        print(f"Error listing MULTIPLEX partitions: {e}", flush=True)
+
+    # Multiplex Filtered
+    try:
+        for entry in sorted(os.listdir(cleaned_libraries_dir)):
+            if entry.startswith("MULTIPLEX-SYNTHESIS-LIBRARY-FILTERED-PARTITION-"):
+                library_dict = {}
+                library_dict["libraryname"] = entry
+                library_dict["processingpipeline"] = 'GNPS Cleaning'
+                library_dict["csvlink"] = f"/processed_gnps_library/{entry}.csv"
+                library_dict["mgflink"] = f"/processed_gnps_library/{entry}.mgf"
+                library_dict["jsonlink"] = f"/processed_gnps_library/{entry}.json"
+                preprocessed_list.append(library_dict)
+    except Exception as e:
+        print(f"Error listing MULTIPLEX FILTERED partitions: {e}", flush=True)
+
     ####    ####
     
     return render_template('gnpslibrarylist.html',
@@ -197,22 +227,44 @@ def json_download(library):
 
 # Preprocessed Data List
 # TODO: Create a endpoint for list of preprocessed data
-@app.route('/processed_gnps_data/matchms.mgf', methods=['GET']) # TODO: No parameters for now 
+@app.route('/processed_gnps_data/matchms.mgf', methods=['GET'])
 def processed_gnps_data_mgf_download():
     return send_from_directory("/output/cleaned_data/matchms_output", "cleaned_spectra.mgf")
 
-@app.route('/processed_gnps_data/gnps_cleaned.csv', methods=['GET']) # TODO: No parameters for now
+@app.route('/processed_gnps_data/gnps_cleaned.csv', methods=['GET'])
 def processed_gnps_data_gnps_cleaned_csv_download():
-    # return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned_enriched.csv")
-    return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned.csv")
+    return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned_enriched.csv")
 
-@app.route('/processed_gnps_data/gnps_cleaned.mgf', methods=['GET']) # TODO: No parameters for now
+@app.route('/processed_gnps_data/gnps_cleaned.mgf', methods=['GET'])
 def processed_gnps_data_gnps_cleaned_mgf_download():
     return send_from_directory("/output/cleaned_data", "ALL_GNPS_cleaned.mgf")
 
-@app.route('/processed_gnps_data/gnps_cleaned.json', methods=['GET']) # TODO: No parameters for now
+@app.route('/processed_gnps_data/gnps_cleaned.json', methods=['GET'])
 def processed_gnps_data_gnps_cleaned_json_download():
     return send_from_directory("/output/cleaned_data/json_outputs", "ALL_GNPS_cleaned.json")
+
+# Cleaned libraries
+@app.route('/processed_gnps_library/<library>.csv', methods=['GET'])
+def processed_gnps_library_csv_download(library):
+    """
+    This endpoint is used to download the preprocessed data in CSV format.
+    """
+    print(f"Attempting to download processed library {library}", flush=True)
+    print(f"Fetching file from /output/cleaned_libraries/{library}/ALL_GNPS_cleaned_enriched.csv", flush=True)
+    return send_from_directory(f"/output/cleaned_libraries/{library}", "ALL_GNPS_cleaned_enriched.csv", download_name=f"{library}_cleaned_enriched.csv")
+@app.route('/processed_gnps_library/<library>.json', methods=['GET'])
+def processed_gnps_library_json_download(library):
+    """
+    This endpoint is used to download the preprocessed data in JSON format.
+    """
+    return send_from_directory(f"/output/cleaned_libraries/{library}", "ALL_GNPS_cleaned.json", download_name=f"{library}_cleaned.json")
+
+@app.route('/processed_gnps_library/<library>.mgf', methods=['GET'])
+def processed_gnps_library_mgf_download(library):
+    """
+    This endpoint is used to download the preprocessed data in MGF format.
+    """
+    return send_from_directory(f"/output/cleaned_libraries/{library}", "ALL_GNPS_cleaned.mgf", download_name=f"{library}_cleaned.mgf")
 
 # Admin
 from tasks_library_generation_worker import generate_gnps_data
@@ -234,6 +286,29 @@ def run_pipelines():
     result = run_cleaning_pipeline.delay()
     print("Running cleaning pipeline, result:", result, flush=True)
     return "Running cleaning pipeline"
+
+@app.route('/admin/debug/run_multiplex_pipeline', methods=['GET'])
+def run_new_pipeline():
+    """
+    This API call is used to test the new pipeline in GNPS2
+    """
+    from tasks_library_generation_worker import run_cleaning_pipeline_library_specific
+
+    # Multiplex libraries
+    output_dir = Path("/output/")
+    all_pattern = re.compile(r"MULTIPLEX-SYNTHESIS-LIBRARY-ALL-PARTITION-\d+\.json$")
+    filtered_pattern = re.compile(r"MULTIPLEX-SYNTHESIS-LIBRARY-FILTERED-PARTITION-\d+\.json$")
+
+    for file in output_dir.iterdir():
+        if all_pattern.match(file.name):
+            library_name = file.stem  # remove .json
+            print(f"Queueing cleaning pipeline for library: {library_name}", flush=True)
+            run_cleaning_pipeline_library_specific.delay(library_name)
+        elif filtered_pattern.match(file.name):
+            library_name = file.stem
+            print(f"Queueing cleaning pipeline for library: {library_name}", flush=True)
+            run_cleaning_pipeline_library_specific.delay(library_name)
+    return "Running new pipeline for all multiplex libraries"
 
 @app.route('/admin/update_api_cache', methods=['GET'])
 def update_api_cache():

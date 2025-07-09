@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import pandas as pd
 
 from models import *
 
@@ -18,7 +19,7 @@ redis_client = redis.Redis(host='externalstructureproxy-redis', port=6379, db=0)
 RUN_EVERY = 86400  # 24 hours
 TASK_TIME_LIMIT = 604800 # One week
 
-@celery_instance.task(time_limit=TASK_TIME_LIMIT)
+@celery_instance.task(time_limit=TASK_TIME_LIMIT, acks_late=True, )
 def task_structure_classification():
     """
     This task enriches the structure database with information from multiple APIs including
@@ -27,9 +28,6 @@ def task_structure_classification():
     This task runs periodically, rather than triggered, and may be long-running if a significant number
     of new structures are added to the database.
     """
-
-    # DEBUG
-    # redis_client.delete("structure_classification_lock")
 
     # Lock times out synchronously with task time limit
     lock = redis_client.lock("structure_classification_lock", timeout=TASK_TIME_LIMIT, blocking_timeout=5)
@@ -41,22 +39,34 @@ def task_structure_classification():
     try:
         path_to_script = "/app/pipelines/structureClassification/nf_workflow.nf"
         path_to_config = "/app/pipelines/structureClassification/nextflow.config"
-        input_path = Path("/output/cleaned_data/ALL_GNPS_cleaned.csv")
+        input_paths = [Path("/output/cleaned_data/ALL_GNPS_cleaned.csv")]
+        # Get other inputs from haromized libraries
+        other_haromized_libraries = Path("/output/cleaned_libraries/").glob("**/*.csv")
+        input_paths.extend(other_haromized_libraries)
         output_path_static = Path("/output/structure_classification")
         output_path = Path("/internal-outputs/structure_classification")
 
-        log_output_path = Path("/output/structure_classification.log")
+        # Ensure input files exist
+        for input_path in input_paths:
+            if not input_path.exists():
+                print(f"Input file {input_path} does not exist. Exiting task.", file=sys.stderr, flush=True)
+                return "Input file not found"
 
-        if not input_path.exists():
-            print(f"Input file {input_path} does not exist. Exiting task.", file=sys.stderr, flush=True)
-            return "Input file not found"
+        log_output_path = Path("/output/structure_classification.log")
 
         if not os.path.isdir(output_path):
             os.makedirs(output_path, exist_ok=True)
 
         # Use a temp copy of the input file
-        temp_input_path = output_path / "ALL_GNPS_cleaned.csv"
-        shutil.copy(input_path, temp_input_path)
+        temp_input_path = output_path / "cleaned_data.csv"
+        # Merge all input files
+        df = pd.DataFrame()
+        for input_path in input_paths:
+            if input_path.exists():
+                df = pd.concat([df, pd.read_csv(input_path)], ignore_index=True)
+
+        df.drop_duplicates(subset=["spectrum_id"], inplace=True)
+        df.to_csv(temp_input_path, index=False)
 
         params = {
             'structure_csv': temp_input_path,
