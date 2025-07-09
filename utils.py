@@ -4,6 +4,7 @@ import os
 import sys
 import time
 import subprocess 
+from pathlib import Path
 
 import pandas as pd
 try:
@@ -90,25 +91,24 @@ def run_cleaning_pipeline(gnps_json_file, output_directory, no_massbank:bool=Fal
     stdout_log = "/output/gnps_ml_processing_nextflow.log"
     
     #Making a specific location in the pipelines folder so its outside of docker
-    conda_env_path = "/app/pipelines/conda_envs/gnps2_ml_processing_env"
-    matchms_conda_path = "/app/pipelines/conda_envs/matchms_env"
+    conda_env_path = Path("/app/pipelines/conda_envs/gnps2_ml_processing_env")
+    matchms_conda_path = Path("/app/pipelines/conda_envs/matchms_env")
 
-    if not os.path.parent.exists(conda_env_path):
-        os.makedirs(conda_env_path, exist_ok=True)
-    if not os.path.parent.exists(matchms_conda_path):
-        os.makedirs(matchms_conda_path, exist_ok=True)
+    if not conda_env_path.parent.exists():
+        conda_env_path.parent.mkdir(parents=True, exist_ok=True)
+    if not matchms_conda_path.parent.exists():
+        matchms_conda_path.parent.mkdir(parents=True, exist_ok=True)
 
-   
     # Use subprocess to run a nextflow script to generate all everything we need
     cmd = " ".join([
-                                    "nextflow", "run", path_to_script,
-                                    "--GNPS_json_path", gnps_json_file,
-                                    "--output_dir", output_directory,
-                                    "--conda_path", conda_env_path,
-                                    "--matchms_conda_path", matchms_conda_path,
-                                    "--api_cache", api_cache_path,
-                                    "-with-report", os.path.join(output_directory, "ml_pipeline_report.html"),
-                                ]  + ["--include_massbank", "false"] if no_massbank else [],)
+                        "nextflow", "run", str(path_to_script),
+                        "--GNPS_json_path", str(gnps_json_file),
+                        "--output_dir", str(output_directory),
+                        "--conda_path", str(conda_env_path),
+                        "--matchms_conda_path", str(matchms_conda_path),
+                        "--api_cache", str(api_cache_path),
+                        "-with-report", str(os.path.join(output_directory, "ml_pipeline_report.html")),
+                    ]  + ["--include_massbank", "false"] if no_massbank else [],)
 
     cmd = "export MAMBA_ALWAYS_YES='true' && {} >> {}".format(cmd, stdout_log)
     os.system(cmd)

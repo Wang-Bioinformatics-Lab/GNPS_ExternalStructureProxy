@@ -292,7 +292,7 @@ def run_new_pipeline():
     """
     This API call is used to test the new pipeline in GNPS2
     """
-    from tasks_gnps import run_cleaning_pipeline_library_specific
+    from tasks_library_generation_worker import run_cleaning_pipeline_library_specific
 
     # Multiplex libraries
     output_dir = Path("/output/")
@@ -302,9 +302,11 @@ def run_new_pipeline():
     for file in output_dir.iterdir():
         if all_pattern.match(file.name):
             library_name = file.stem  # remove .json
+            print(f"Queueing cleaning pipeline for library: {library_name}", flush=True)
             run_cleaning_pipeline_library_specific.delay(library_name)
         elif filtered_pattern.match(file.name):
             library_name = file.stem
+            print(f"Queueing cleaning pipeline for library: {library_name}", flush=True)
             run_cleaning_pipeline_library_specific.delay(library_name)
     return "Running new pipeline for all multiplex libraries"
 

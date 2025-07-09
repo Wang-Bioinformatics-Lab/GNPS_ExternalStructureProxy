@@ -70,6 +70,7 @@ celery_instance.conf.beat_schedule = {
 
 @celery_instance.task(time_limit=64_800) # 18 Hour Timeout
 def run_cleaning_pipeline_library_specific(library):
+    print(f"Executing cleaning pipeline for library: {library}", flush=True)
 
     output_dir = Path(f"/output/cleaned_libraries/{library}/")
     if not output_dir.exists():
@@ -81,5 +82,5 @@ def run_cleaning_pipeline_library_specific(library):
 celery_instance.conf.task_routes = {
     'tasks_library_generation_worker.generate_gnps_data': {'queue': 'tasks_library_generation_worker'},
     'tasks_library_generation_worker.run_cleaning_pipeline': {'queue': 'tasks_library_generation_worker'},
-    'tasks_gnps.run_cleaning_pipeline_library_specific': {'queue': 'beat_worker'},
+    'tasks_library_generation_worker.run_cleaning_pipeline_library_specific': {'queue': 'tasks_library_generation_worker'},
 }
