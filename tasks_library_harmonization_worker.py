@@ -24,11 +24,11 @@ celery_instance.conf.beat_schedule = {
     "harmonize_gnps_data": {
         "task": "tasks_library_harmonization_worker.run_cleaning_pipeline",
         "schedule": 604800,  # every 7 days
-        "options": {"queue": "library_harmonization_worker"},
+        "options": {"queue": "tasks_library_harmonization_worker"},
     }
 }
 
 celery_instance.conf.task_routes = {
-    'tasks_library_harmonization_worker.run_cleaning_pipeline': {'queue': 'library_harmonization_worker'},
-    'tasks_library_harmonization_worker.run_cleaning_pipeline_library_specific': {'queue': 'library_harmonization_worker'},
+    'tasks_library_harmonization_worker.run_cleaning_pipeline': {'queue': 'tasks_library_harmonization_worker'},
+    'tasks_library_harmonization_worker.run_cleaning_pipeline_library_specific': {'queue': 'tasks_library_harmonization_worker'},
 }
