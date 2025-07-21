@@ -8,7 +8,7 @@ import datetime
 import subprocess
 from pathlib import Path
 import re
-from tasks_harmonization_worker import run_cleaning_pipeline, run_cleaning_pipeline_library_specific
+from tasks_library_harmonization_worker import run_cleaning_pipeline, run_cleaning_pipeline_library_specific
 
 celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis', broker='pyamqp://guest@externalstructureproxy-rabbitmq/', )
 

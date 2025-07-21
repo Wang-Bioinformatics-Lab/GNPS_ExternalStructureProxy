@@ -108,6 +108,7 @@ def run_cleaning_pipeline(gnps_json_file, output_directory, no_massbank:bool=Fal
                         "--matchms_conda_path", str(matchms_conda_path),
                         "--api_cache", str(api_cache_path),
                         "-with-report", str(os.path.join(output_directory, "ml_pipeline_report.html")),
+                        "-with-timeline", str(os.path.join(output_directory, "ml_pipeline_timeline.html")),
                     ]  + ["--include_massbank", "false"] if no_massbank else [],)
 
     cmd = "export MAMBA_ALWAYS_YES='true' && {} >> {}".format(cmd, stdout_log)
