@@ -87,13 +87,15 @@
                         </td>
                         <td>
                             <download-linkout :url=library_dict.mgflink :libraryname=library_dict.libraryname></download-linkout>
-                            <td v-if="library_dict.mgftarlink">
-                                <br>
+                            <div v-if="library_dict.mgftarlink">
                                 <download-linkout-tar :url="library_dict.mgftarlink" :libraryname="library_dict.libraryname"></download-linkout-tar>
-                            </td>
+                            </div>
                         </td>
                         <td>
                             <download-linkout :url=library_dict.msplink :libraryname=library_dict.libraryname></download-linkout>
+                            <div v-if="library_dict.msptarlink">
+                                <download-linkout-tar :url="library_dict.mgftarlink" :libraryname="library_dict.libraryname"></download-linkout-tar>
+                            </div>
                         </td>
                         <td>
                             <download-linkout :url=library_dict.jsonlink :libraryname=library_dict.libraryname></download-linkout>
@@ -182,7 +184,7 @@
             return {}
         },
         methods: {},
-        template: '<a v-if="url" :href="url">Download Tar</a><span v-else>N/A</span>'
+        template: '<a v-if="url" :href="url">Download Tar</a>'
     })
 
     // Adding Browse Linkout

@@ -229,6 +229,11 @@ def msp_download(library):
 def json_download(library):
     return send_from_directory("/output", "{}.json".format(library))
 
+@app.route('/gnpslibrary/<library>.tar.gz', methods=['GET'])
+def tar_download(library):
+    return send_from_directory("/output", "{}.tar.gz".format(library))
+
+
 # Preprocessed Data List
 # TODO: Create a endpoint for list of preprocessed data
 @app.route('/processed_gnps_data/matchms.mgf', methods=['GET'])
