@@ -8,6 +8,7 @@ import datetime
 import subprocess
 from pathlib import Path
 import re
+from tasks_harmonization_worker import run_cleaning_pipeline, run_cleaning_pipeline_library_specific
 
 celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis', broker='pyamqp://guest@externalstructureproxy-rabbitmq/', )
 
@@ -36,7 +37,7 @@ def generate_gnps_data():
     os.system(cmd)
     
     #### MatchMS/ML Prep Pipeline ####
-    run_cleaning_pipeline.delay()
+    run_cleaning_pipeline.apply_async(expires=48*60*60)
     # Multiplex libraries
     output_dir = Path("/output/")
     all_pattern = re.compile(r"MULTIPLEX-SYNTHESIS-LIBRARY-ALL-PARTITION-\d+\.json$")
@@ -45,42 +46,13 @@ def generate_gnps_data():
     for file in output_dir.iterdir():
         if all_pattern.match(file.name):
             library_name = file.stem  # remove .json
-            run_cleaning_pipeline_library_specific.delay(library_name)
+            run_cleaning_pipeline_library_specific.apply_async((library_name,), expires=48*60*60)
         elif filtered_pattern.match(file.name):
             library_name = file.stem
-            run_cleaning_pipeline_library_specific.delay(library_name)
+            run_cleaning_pipeline_library_specific.apply_async((library_name,), expires=48*60*60)
 
     return ""
 
-    
-    
-
-@celery_instance.task(time_limit=64_800) # 18 Hour Timeout
-def run_cleaning_pipeline():
-    utils.run_cleaning_pipeline("/output/ALL_GNPS_NO_PROPOGATED.json", "/output/cleaned_data/")
-    
-    return "Finished matchms cleaning pipeline"
-
-celery_instance.conf.beat_schedule = {
-    "generate_gnps_data": {
-        "task": "tasks_library_generation_worker.generate_gnps_data",
-        "schedule": 86400   # Every 24 hours
-    }
-}
-
-@celery_instance.task(time_limit=64_800) # 18 Hour Timeout
-def run_cleaning_pipeline_library_specific(library):
-    print(f"Executing cleaning pipeline for library: {library}", flush=True)
-
-    output_dir = Path(f"/output/cleaned_libraries/{library}/")
-    if not output_dir.exists():
-        output_dir.mkdir(parents=True, exist_ok=True)
-    utils.run_cleaning_pipeline(f"/output/{library}.json", output_dir, no_massbank=True)
-    
-    return f"Finished matchms cleaning pipeline for {library}"
-
 celery_instance.conf.task_routes = {
     'tasks_library_generation_worker.generate_gnps_data': {'queue': 'tasks_library_generation_worker'},
-    'tasks_library_generation_worker.run_cleaning_pipeline': {'queue': 'tasks_library_generation_worker'},
-    'tasks_library_generation_worker.run_cleaning_pipeline_library_specific': {'queue': 'tasks_library_generation_worker'},
 }

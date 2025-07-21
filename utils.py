@@ -99,7 +99,7 @@ def run_cleaning_pipeline(gnps_json_file, output_directory, no_massbank:bool=Fal
     if not matchms_conda_path.parent.exists():
         matchms_conda_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Use subprocess to run a nextflow script to generate all everything we need
+    # Run a Nextflow script to generate all everything we need in the current process
     cmd = " ".join([
                         "nextflow", "run", str(path_to_script),
                         "--GNPS_json_path", str(gnps_json_file),
