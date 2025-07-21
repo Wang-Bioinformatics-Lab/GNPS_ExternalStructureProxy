@@ -119,6 +119,8 @@ def gnpslibrary():
     library_dict["mgflink"] = "/gnpslibrary/{}.mgf".format(library_name)
     library_dict["msplink"] = "/gnpslibrary/{}.msp".format(library_name)
     library_dict["jsonlink"] = "/gnpslibrary/{}.json".format(library_name)
+    library_dict["mgftarlink"] = "/gnpslibrary/ALL_GNPS_SPLITS.mgf.tar.gz"
+    library_dict["msptarlink"] = "/gnpslibrary/ALL_GNPS_SPLITS.msp.json.tar.gz"
     library_dict["browselink"] = "https://library.gnps2.org/"
     library_list.append(library_dict)
 
@@ -129,6 +131,8 @@ def gnpslibrary():
     library_dict["mgflink"] = "/gnpslibrary/{}.mgf".format(library_name)
     library_dict["msplink"] = "/gnpslibrary/{}.msp".format(library_name)
     library_dict["jsonlink"] = "/gnpslibrary/{}.json".format(library_name)
+    library_dict["mgftarlink"] = "/gnpslibrary/ALL_GNPS_NO_PROPOGATED_SPLITS.mgf.tar.gz"
+    library_dict["msptarlink"] = "/gnpslibrary/ALL_GNPS_NO_PROPOGATED_SPLITS.msp.tar.gz"
     library_dict["browselink"] = "https://library.gnps2.org/"
     library_list.append(library_dict)
 

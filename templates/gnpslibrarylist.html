@@ -83,16 +83,20 @@
                         <td>{{library_dict.libraryname}}</td>
                         <td>{{library_dict.type}}</td>
                         <td>
-                            <browse-linkout :url=library_dict.browselink :libraryname=library_dict.libraryname></gnps-linkout>
+                            <browse-linkout :url=library_dict.browselink :libraryname=library_dict.libraryname></browse-linkout>
                         </td>
                         <td>
-                            <download-linkout :url=library_dict.mgflink :libraryname=library_dict.libraryname></gnps-linkout>
+                            <download-linkout :url=library_dict.mgflink :libraryname=library_dict.libraryname></download-linkout>
+                            <td v-if="library_dict.mgftarlink">
+                                <br>
+                                <download-linkout-tar :url="library_dict.mgftarlink" :libraryname="library_dict.libraryname"></download-linkout-tar>
+                            </td>
                         </td>
                         <td>
-                            <download-linkout :url=library_dict.msplink :libraryname=library_dict.libraryname></gnps-linkout>
+                            <download-linkout :url=library_dict.msplink :libraryname=library_dict.libraryname></download-linkout>
                         </td>
                         <td>
-                            <download-linkout :url=library_dict.jsonlink :libraryname=library_dict.libraryname></gnps-linkout>
+                            <download-linkout :url=library_dict.jsonlink :libraryname=library_dict.libraryname></download-linkout>
                         </td>
                     </tr>
                 </tbody>
@@ -147,13 +151,13 @@
                         <td>{{processed_dict.libraryname}}</td>
                         <td>{{processed_dict.processingpipeline}}</td>
                         <td>
-                            <download-linkout :url=processed_dict.csvlink :libraryname=processed_dict.libraryname></gnps-linkout>
+                            <download-linkout :url=processed_dict.csvlink :libraryname=processed_dict.libraryname></download-linkout>
                         </td>
                         <td>
-                            <download-linkout :url=processed_dict.mgflink :libraryname=processed_dict.libraryname></gnps-linkout>
+                            <download-linkout :url=processed_dict.mgflink :libraryname=processed_dict.libraryname></download-linkout>
                         </td>
                         <td>
-                            <download-linkout :url=processed_dict.jsonlink :libraryname=processed_dict.libraryname></gnps-linkout>
+                            <download-linkout :url=processed_dict.jsonlink :libraryname=processed_dict.libraryname></download-linkout>
                         </td>
                     </tr>
                 </tbody>
@@ -170,6 +174,15 @@
         },
         methods: {},
         template: '<a v-if="url" :href="url">Download</a><span v-else>N/A</span>'
+    })
+
+    Vue.component('download-linkout-tar', {
+        props: ['libraryname', 'url'],
+        data: function() {
+            return {}
+        },
+        methods: {},
+        template: '<a v-if="url" :href="url">Download Tar</a><span v-else>N/A</span>'
     })
 
     // Adding Browse Linkout
