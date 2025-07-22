@@ -41,6 +41,29 @@ services:
     deploy:
       resources:
         limits:
+          memory: 64G  # TODO: Scope this back now that harmonization has been moved out
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  externalstructureproxy-library_harmonization_worker:
+    build: .
+    container_name: externalstructureproxy-library_harmonization_worker
+    volumes:
+        - ./output:/output:rw
+        - ./pipelines:/app/pipelines:rw
+        - /home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:/home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:ro
+    networks:
+      - default
+    restart: always
+    command: /app/run_library_harmonization_worker.sh
+    depends_on: 
+      - externalstructureproxy-rabbitmq
+    deploy:
+      resources:
+        limits:
           memory: 64G
     logging:
       driver: "json-file"

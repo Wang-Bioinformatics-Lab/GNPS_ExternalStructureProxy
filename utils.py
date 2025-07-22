@@ -99,7 +99,7 @@ def run_cleaning_pipeline(gnps_json_file, output_directory, no_massbank:bool=Fal
     if not matchms_conda_path.parent.exists():
         matchms_conda_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Use subprocess to run a nextflow script to generate all everything we need
+    # Run a Nextflow script to generate all everything we need in the current process
     cmd = " ".join([
                         "nextflow", "run", str(path_to_script),
                         "--GNPS_json_path", str(gnps_json_file),
@@ -108,7 +108,8 @@ def run_cleaning_pipeline(gnps_json_file, output_directory, no_massbank:bool=Fal
                         "--matchms_conda_path", str(matchms_conda_path),
                         "--api_cache", str(api_cache_path),
                         "-with-report", str(os.path.join(output_directory, "ml_pipeline_report.html")),
-                    ]  + ["--include_massbank", "false"] if no_massbank else [],)
+                        "-with-timeline", str(os.path.join(output_directory, "ml_pipeline_timeline.html")),
+                    ] + (["--include_massbank", "false"] if no_massbank else []),)
 
     cmd = "export MAMBA_ALWAYS_YES='true' && {} >> {}".format(cmd, stdout_log)
     os.system(cmd)
