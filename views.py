@@ -291,8 +291,12 @@ def run_pipelines():
     """
     This API call is used to test the matchms cleaning pipeline in GNPS2
     """
-    from tasks_library_generation_worker import run_cleaning_pipeline
-    result = run_cleaning_pipeline.delay()
+    from tasks_library_harmonization_worker import run_cleaning_pipeline
+    # result = run_cleaning_pipeline.delay()
+
+    print("Queueing harmonization pipeline", flush=True, file=sys.stderr)
+    result = run_cleaning_pipeline.apply_async(expires=48*60*60,
+                                               queue="tasks_library_harmonization_worker")
     print("Running cleaning pipeline, result:", result, flush=True)
     return "Running cleaning pipeline"
 
@@ -301,7 +305,7 @@ def run_new_pipeline():
     """
     This API call is used to test the new pipeline in GNPS2
     """
-    from tasks_library_generation_worker import run_cleaning_pipeline_library_specific
+    from tasks_library_harmonization_worker import run_cleaning_pipeline_library_specific
 
     # Multiplex libraries
     output_dir = Path("/output/")
@@ -312,11 +316,13 @@ def run_new_pipeline():
         if all_pattern.match(file.name):
             library_name = file.stem  # remove .json
             print(f"Queueing cleaning pipeline for library: {library_name}", flush=True)
-            run_cleaning_pipeline_library_specific.delay(library_name)
+            run_cleaning_pipeline_library_specific.apply_async((library_name,), expires=48*60*60,
+                                                               queue="tasks_library_harmonization_worker")
         elif filtered_pattern.match(file.name):
             library_name = file.stem
             print(f"Queueing cleaning pipeline for library: {library_name}", flush=True)
-            run_cleaning_pipeline_library_specific.delay(library_name)
+            run_cleaning_pipeline_library_specific.apply_async((library_name,), expires=48*60*60,
+                                                               queue="tasks_library_harmonization_worker")
     return "Running new pipeline for all multiplex libraries"
 
 @app.route('/admin/update_api_cache', methods=['GET'])
@@ -360,13 +366,17 @@ def pipelinestatus():
         "log_file": api_caching_log
     }
 
-    return jsonify(return_dict)    
+    return jsonify(return_dict)
 
 
 
-@app.route('/download_cleaning_report', methods=['GET']) # TODO: No parameters for now
+@app.route('/download_cleaning_report', methods=['GET'])
 def download_cleaning_report():
     return send_from_directory(directory="/output/cleaned_data/", path="ml_pipeline_report.html")
+
+@app.route('/download_cleaning_timeline', methods=['GET'])
+def download_cleaning_timeline():
+    return send_from_directory(directory="/output/cleaned_data/", path="ml_pipeline_timeline.html")
 
 def get_change_time(root_dir:Path, relevant_logs:List[str]):
     relevant_logs = [root_dir / log for log in relevant_logs]
