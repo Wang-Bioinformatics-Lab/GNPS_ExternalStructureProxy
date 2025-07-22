@@ -16,9 +16,11 @@ def generate_gnps_data():
 
     # TODO CALL THE NEXTFLOW HERE
     import sys
-    print("XXXXXXXXXXXXXXXXXXXXXXXXXXX", file=sys.stderr, flush=True)
+    print("RUNNING GNPS GENERATE WORKFLOW", file=sys.stderr, flush=True)
 
     path_to_script  = "/app/pipelines/Library_Pulldown_Workflow/nf_workflow.nf"
+    work_dir = "/app/pipelines/Library_Pulldown_Workflow/work"
+
     stdout_log = "/output/library_generation_nextflow.log"
     output_directory = "/output"
     cache_summary_location = "/output/library_summaries"
@@ -31,6 +33,7 @@ def generate_gnps_data():
         "-c", "/app/pipelines/Library_Pulldown_Workflow/nextflow_external.config",
         "--publishdir", output_directory,
         "--cachelibrariesdir", cache_summary_location,
+        "-w". work_dir,
     ])
     cmd = "export MAMBA_ALWAYS_YES='true' && {} >> {}".format(cmd, stdout_log)
     os.system(cmd)
