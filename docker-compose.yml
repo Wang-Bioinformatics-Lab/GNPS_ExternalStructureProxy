@@ -31,6 +31,7 @@ services:
     volumes:
         - ./output:/output:rw
         - ./pipelines:/app/pipelines:rw
+        - ./gscratch:/data/gscratch:rw
         - /home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:/home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:ro
     networks:
       - default

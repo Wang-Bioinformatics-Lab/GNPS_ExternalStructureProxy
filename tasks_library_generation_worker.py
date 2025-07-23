@@ -20,21 +20,21 @@ def generate_gnps_data():
     print("RUNNING GNPS GENERATE WORKFLOW", file=sys.stderr, flush=True)
 
     path_to_script  = "/app/pipelines/Library_Pulldown_Workflow/nf_workflow.nf"
-    work_dir = "/app/pipelines/Library_Pulldown_Workflow/work"
-
+    work_dir = "/data/gscratch/web-services/Library_Pulldown_Workflow/work"
     stdout_log = "/output/library_generation_nextflow.log"
+    nextflow_config = "/app/pipelines/Library_Pulldown_Workflow/nextflow_external.config"
+
     output_directory = "/output"
     cache_summary_location = "/output/library_summaries"
+
     if not os.path.isdir(output_directory):
         os.makedirs(output_directory, exist_ok=True)
     
     # Use subprocess to run a nextflow script to generate all everything we need
     cmd = " ".join([
         "nextflow", "run", path_to_script, 
-        "-c", "/app/pipelines/Library_Pulldown_Workflow/nextflow_external.config",
-        "--publishdir", output_directory,
-        "--cachelibrariesdir", cache_summary_location,
-        "-w". work_dir,
+        "-c", nextflow_config,
+        "-w", work_dir,
     ])
     cmd = "export MAMBA_ALWAYS_YES='true' && {} >> {}".format(cmd, stdout_log)
     os.system(cmd)

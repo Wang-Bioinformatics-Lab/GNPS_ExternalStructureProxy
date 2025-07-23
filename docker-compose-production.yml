@@ -12,6 +12,13 @@ services:
       LETSENCRYPT_EMAIL: mwang87@gmail.com
     command: /app/run_production_server.sh
 
+  externalstructureproxy-library_generation_worker:
+    volumes:
+        - ./output:/output:rw
+        - ./pipelines:/app/pipelines:rw
+        - /data/gscratch/:/data/gscratch:rw
+        - /home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:/home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:ro
+    
 networks:
   nginx-net:
     external:
