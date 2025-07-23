@@ -14,10 +14,19 @@ services:
 
   externalstructureproxy-library_generation_worker:
     volumes:
-        - ./output:/output:rw
-        - ./pipelines:/app/pipelines:rw
         - /data/gscratch/:/data/gscratch:rw
-        - /home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:/home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:ro
+  
+  externalstructureproxy-library_harmonization_worker:
+    volumes:
+        - /data/gscratch/:/data/gscratch:rw
+  
+  externalstructureproxy-api_request_worker:
+    volumes:
+        - /data/gscratch/:/data/gscratch:rw
+
+  externalstructureproxy-library_api_retrieve_worker:
+    volumes:
+        - /data/gscratch/:/data/gscratch:rw
     
 networks:
   nginx-net:

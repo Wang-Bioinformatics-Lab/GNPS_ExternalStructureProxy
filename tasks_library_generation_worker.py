@@ -25,7 +25,6 @@ def generate_gnps_data():
     nextflow_config = "/app/pipelines/Library_Pulldown_Workflow/nextflow_external.config"
 
     output_directory = "/output"
-    cache_summary_location = "/output/library_summaries"
 
     if not os.path.isdir(output_directory):
         os.makedirs(output_directory, exist_ok=True)
