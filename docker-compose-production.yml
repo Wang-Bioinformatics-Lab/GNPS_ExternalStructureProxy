@@ -14,18 +14,29 @@ services:
 
   externalstructureproxy-library_generation_worker:
     volumes:
+        - ./output:/output:rw
+        - ./pipelines:/app/pipelines:rw
+        - /home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:/home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:ro
         - /data/gscratch/:/data/gscratch:rw
   
   externalstructureproxy-library_harmonization_worker:
     volumes:
+        - ./output:/output:rw
+        - ./pipelines:/app/pipelines:rw
+        - /home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:/home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:ro
         - /data/gscratch/:/data/gscratch:rw
   
   externalstructureproxy-api_request_worker:
     volumes:
+        - ./output:/output:rw
+        - ./internal-outputs/:/internal-outputs:rw
         - /data/gscratch/:/data/gscratch:rw
 
   externalstructureproxy-library_api_retrieve_worker:
     volumes:
+        - ./output:/output:rw
+        - ./data:/app/data:ro
+        - ./database:/app/database:rw
         - /data/gscratch/:/data/gscratch:rw
     
 networks:
