@@ -9,6 +9,7 @@ import subprocess
 from pathlib import Path
 import re
 from tasks_library_harmonization_worker import run_cleaning_pipeline, run_cleaning_pipeline_library_specific
+from pandas import read_csv
 
 celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis', broker='pyamqp://guest@externalstructureproxy-rabbitmq/', )
 
@@ -23,6 +24,9 @@ def generate_gnps_data():
     work_dir = "/data/gscratch/web-services/Library_Pulldown_Workflow/work"
     stdout_log = "/output/library_generation_nextflow.log"
     nextflow_config = "/app/pipelines/Library_Pulldown_Workflow/nextflow_external.config"
+    library_names = read_csv("/app/library_names.tsv", names=['library', 'type'], dtype=str)  # Named as a tsv, is a csv
+    library_names['json_name'] = library_names['library'].str.strip() + ".json"
+    name_type_mapping = library_names.set_index('json_name')['type'].to_dict()
 
     output_directory = "/output"
 
@@ -39,19 +43,17 @@ def generate_gnps_data():
     os.system(cmd)
     
     #### MatchMS/ML Prep Pipeline ####
-    run_cleaning_pipeline.apply_async(expires=48*60*60)
-    # Multiplex libraries
+    run_cleaning_pipeline.apply_async(expires=48*60*60) # Must start within 48 hours
+    # Propagated ("GNPS-PROPOGATED") libs
     output_dir = Path("/output/")
-    all_pattern = re.compile(r"MULTIPLEX-SYNTHESIS-LIBRARY-ALL-PARTITION-\d+\.json$")
-    filtered_pattern = re.compile(r"MULTIPLEX-SYNTHESIS-LIBRARY-FILTERED-PARTITION-\d+\.json$")
 
-    for file in output_dir.iterdir():
-        if all_pattern.match(file.name):
-            library_name = file.stem  # remove .json
-            run_cleaning_pipeline_library_specific.apply_async((library_name,), expires=48*60*60)
-        elif filtered_pattern.match(file.name):
+    for file in sorted(list(output_dir.glob("*.json"))):
+        if name_type_mapping.get(file.name) == "GNPS-PROPOGATED":
+            print(f"Processing file: {file.name}", file=sys.stderr, flush=True)
             library_name = file.stem
-            run_cleaning_pipeline_library_specific.apply_async((library_name,), expires=48*60*60)
+            run_cleaning_pipeline_library_specific.apply_async((library_name,), expires=72*60*60)    # Must start within 72 hours
+        else:
+            print(f"generate_gnps_data() library harmonization is not queuing file: {file.name} - not a GNPS-PROPOGATED library", file=sys.stderr, flush=True)
 
     return ""
 

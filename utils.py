@@ -93,7 +93,7 @@ def run_cleaning_pipeline(gnps_json_file, output_directory, no_massbank:bool=Fal
     #Making a specific location in the pipelines folder so its outside of docker
     conda_env_path = Path("/app/pipelines/conda_envs/gnps2_ml_processing_env")
     matchms_conda_path = Path("/app/pipelines/conda_envs/matchms_env")
-    work_dir = Path("/data/gscratch/web-services/Library_Pulldown_Workflow/work")
+    work_dir = Path("/data/gscratch/web-services/Cleaning_Pipelines/work")
     if not work_dir.exists():
         work_dir.mkdir(parents=True, exist_ok=True)
 
