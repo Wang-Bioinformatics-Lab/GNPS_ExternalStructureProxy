@@ -177,30 +177,15 @@ def gnpslibrary():
     cleaned_libraries_dir = "/output/cleaned_libraries"
     try:
         for entry in sorted(os.listdir(cleaned_libraries_dir)):
-            if entry.startswith("MULTIPLEX-SYNTHESIS-LIBRARY-ALL-PARTITION-"):
-                library_dict = {}
-                library_dict["libraryname"] = entry
-                library_dict["processingpipeline"] = 'GNPS Cleaning'
-                library_dict["csvlink"] = f"/processed_gnps_library/{entry}.csv"
-                library_dict["mgflink"] = f"/processed_gnps_library/{entry}.mgf"
-                library_dict["jsonlink"] = f"/processed_gnps_library/{entry}.json"
-                preprocessed_list.append(library_dict)
+            library_dict = {}
+            library_dict["libraryname"] = entry
+            library_dict["processingpipeline"] = 'GNPS Cleaning'
+            library_dict["csvlink"] = f"/processed_gnps_library/{entry}.csv"
+            library_dict["mgflink"] = f"/processed_gnps_library/{entry}.mgf"
+            library_dict["jsonlink"] = f"/processed_gnps_library/{entry}.json"
+            preprocessed_list.append(library_dict)
     except Exception as e:
-        print(f"Error listing MULTIPLEX partitions: {e}", flush=True)
-
-    # Multiplex Filtered
-    try:
-        for entry in sorted(os.listdir(cleaned_libraries_dir)):
-            if entry.startswith("MULTIPLEX-SYNTHESIS-LIBRARY-FILTERED-PARTITION-"):
-                library_dict = {}
-                library_dict["libraryname"] = entry
-                library_dict["processingpipeline"] = 'GNPS Cleaning'
-                library_dict["csvlink"] = f"/processed_gnps_library/{entry}.csv"
-                library_dict["mgflink"] = f"/processed_gnps_library/{entry}.mgf"
-                library_dict["jsonlink"] = f"/processed_gnps_library/{entry}.json"
-                preprocessed_list.append(library_dict)
-    except Exception as e:
-        print(f"Error listing MULTIPLEX FILTERED partitions: {e}", flush=True)
+        print(f"Error listing cleaned libraries: {e}", flush=True)
 
     ####    ####
     
