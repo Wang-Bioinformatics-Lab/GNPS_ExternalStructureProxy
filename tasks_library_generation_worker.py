@@ -48,9 +48,15 @@ def generate_gnps_data():
     output_dir = Path("/output/")
 
     for file in sorted(list(output_dir.glob("*.json"))):
-        if name_type_mapping.get(file.name) == "GNPS-PROPOGATED":
-            print(f"Processing file: {file.name}", file=sys.stderr, flush=True)
-            library_name = file.stem
+        file_name = file.name
+        library_name = file.stem
+        if str(library_name).startswith("CMMC-REFRAME"):
+            # Drop the CMMC (n.b. do not drop it from the library_name)
+            file_name = file_name.replace("CMMC-REFRAME-", "REFRAME-")
+
+        if name_type_mapping.get(file_name) == "GNPS-PROPOGATED":
+            print(f"Processing file: {file_name}", file=sys.stderr, flush=True)
+
             run_cleaning_pipeline_library_specific.apply_async((library_name,), expires=72*60*60)    # Must start within 72 hours
         else:
             print(f"generate_gnps_data() library harmonization is not queuing file: {file.name} - not a GNPS-PROPOGATED library", file=sys.stderr, flush=True)
