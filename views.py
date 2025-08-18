@@ -334,6 +334,18 @@ def run_propagated_pipeline():
 
     return "Running propagated pipeline for all GNPS-PROPOGATED libraries"
 
+@app.route('/admin/debug/clean_cmmc_reframe', methods=['GET'])
+def clean_cmmc_reframe():
+    """
+    This API call is used to clean the CMMC-REFRAME libraries in GNPS2
+    """
+    from tasks_library_harmonization_worker import run_cleaning_pipeline_library_specific
+
+    for library_name in ['CMMC-REFRAME-NEGATIVE-LIBRARY', 'CMMC-REFRAME-POSITIVE-LIBRARY']:
+        run_cleaning_pipeline_library_specific.apply_async((library_name,), expires=72*60*60,   # Must start within 72 hours
+                                                               queue="tasks_library_harmonization_worker")
+    return "Running cleaning pipeline for CMMC-REFRAME libraries"
+
 @app.route('/admin/update_api_cache', methods=['GET'])
 def update_api_cache():
     """
