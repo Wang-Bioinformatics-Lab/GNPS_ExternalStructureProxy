@@ -191,7 +191,7 @@ def gnpslibrary():
     
     return render_template('gnpslibrarylist.html',
                            library_list=library_list,
-                           number_of_spectra=number_of_spectra,
+                           number_of_spectra=f"{number_of_spectra:,}",
                            last_modified=last_modified,
                            preprocessed_list=preprocessed_list)
 
