@@ -93,6 +93,9 @@ def run_cleaning_pipeline(gnps_json_file, output_directory, no_massbank:bool=Fal
     #Making a specific location in the pipelines folder so its outside of docker
     conda_env_path = Path("/app/pipelines/conda_envs/gnps2_ml_processing_env")
     matchms_conda_path = Path("/app/pipelines/conda_envs/matchms_env")
+    work_dir = Path("/data/gscratch/web-services/Cleaning_Pipelines/work")
+    if not work_dir.exists():
+        work_dir.mkdir(parents=True, exist_ok=True)
 
     if not conda_env_path.parent.exists():
         conda_env_path.parent.mkdir(parents=True, exist_ok=True)
@@ -109,6 +112,7 @@ def run_cleaning_pipeline(gnps_json_file, output_directory, no_massbank:bool=Fal
                         "--api_cache", str(api_cache_path),
                         "-with-report", str(os.path.join(output_directory, "ml_pipeline_report.html")),
                         "-with-timeline", str(os.path.join(output_directory, "ml_pipeline_timeline.html")),
+                        "-w", str(work_dir),
                     ] + (["--include_massbank", "false"] if no_massbank else []),)
 
     cmd = "export MAMBA_ALWAYS_YES='true' && {} >> {}".format(cmd, stdout_log)

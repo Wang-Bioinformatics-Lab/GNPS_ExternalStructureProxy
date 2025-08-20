@@ -177,36 +177,21 @@ def gnpslibrary():
     cleaned_libraries_dir = "/output/cleaned_libraries"
     try:
         for entry in sorted(os.listdir(cleaned_libraries_dir)):
-            if entry.startswith("MULTIPLEX-SYNTHESIS-LIBRARY-ALL-PARTITION-"):
-                library_dict = {}
-                library_dict["libraryname"] = entry
-                library_dict["processingpipeline"] = 'GNPS Cleaning'
-                library_dict["csvlink"] = f"/processed_gnps_library/{entry}.csv"
-                library_dict["mgflink"] = f"/processed_gnps_library/{entry}.mgf"
-                library_dict["jsonlink"] = f"/processed_gnps_library/{entry}.json"
-                preprocessed_list.append(library_dict)
+            library_dict = {}
+            library_dict["libraryname"] = entry
+            library_dict["processingpipeline"] = 'GNPS Cleaning'
+            library_dict["csvlink"] = f"/processed_gnps_library/{entry}.csv"
+            library_dict["mgflink"] = f"/processed_gnps_library/{entry}.mgf"
+            library_dict["jsonlink"] = f"/processed_gnps_library/{entry}.json"
+            preprocessed_list.append(library_dict)
     except Exception as e:
-        print(f"Error listing MULTIPLEX partitions: {e}", flush=True)
-
-    # Multiplex Filtered
-    try:
-        for entry in sorted(os.listdir(cleaned_libraries_dir)):
-            if entry.startswith("MULTIPLEX-SYNTHESIS-LIBRARY-FILTERED-PARTITION-"):
-                library_dict = {}
-                library_dict["libraryname"] = entry
-                library_dict["processingpipeline"] = 'GNPS Cleaning'
-                library_dict["csvlink"] = f"/processed_gnps_library/{entry}.csv"
-                library_dict["mgflink"] = f"/processed_gnps_library/{entry}.mgf"
-                library_dict["jsonlink"] = f"/processed_gnps_library/{entry}.json"
-                preprocessed_list.append(library_dict)
-    except Exception as e:
-        print(f"Error listing MULTIPLEX FILTERED partitions: {e}", flush=True)
+        print(f"Error listing cleaned libraries: {e}", flush=True)
 
     ####    ####
     
     return render_template('gnpslibrarylist.html',
                            library_list=library_list,
-                           number_of_spectra=number_of_spectra,
+                           number_of_spectra=f"{number_of_spectra:,}",
                            last_modified=last_modified,
                            preprocessed_list=preprocessed_list)
 
@@ -324,6 +309,42 @@ def run_new_pipeline():
             run_cleaning_pipeline_library_specific.apply_async((library_name,), expires=48*60*60,
                                                                queue="tasks_library_harmonization_worker")
     return "Running new pipeline for all multiplex libraries"
+
+@app.route('/admin/debug/run_propogated_pipeline', methods=['GET'])
+@app.route('/admin/debug/run_propagated_pipeline', methods=['GET'])
+def run_propagated_pipeline():
+    """
+    This API call is used to test the propagated libraries cleaning pipeline in GNPS2
+    """
+    from tasks_library_harmonization_worker import run_cleaning_pipeline_library_specific
+
+    output_dir = Path("/output/")
+    library_names = pd.read_csv("/app/library_names.tsv", names=['library', 'type'], dtype=str) # Named as a tsv, is a csv
+    library_names['json_name'] = library_names['library'].str.strip() + ".json"
+    name_type_mapping = library_names.set_index('json_name')['type'].to_dict()
+
+    for file in sorted(list(output_dir.glob("*.json"))):
+        if name_type_mapping.get(file.name) == "GNPS-PROPOGATED":
+            print(f"Processing file: {file.name}", flush=True)
+            library_name = file.stem
+            run_cleaning_pipeline_library_specific.apply_async((library_name,), expires=72*60*60,   # Must start within 72 hours
+                                                               queue="tasks_library_harmonization_worker")
+        else:
+            print(f"run_propagated_pipeline() library harmonization is not queuing file: {file.name} - not a GNPS-PROPOGATED library", flush=True)
+
+    return "Running propagated pipeline for all GNPS-PROPOGATED libraries"
+
+@app.route('/admin/debug/clean_cmmc_reframe', methods=['GET'])
+def clean_cmmc_reframe():
+    """
+    This API call is used to clean the CMMC-REFRAME libraries in GNPS2
+    """
+    from tasks_library_harmonization_worker import run_cleaning_pipeline_library_specific
+
+    for library_name in ['CMMC-REFRAME-NEGATIVE-LIBRARY', 'CMMC-REFRAME-POSITIVE-LIBRARY']:
+        run_cleaning_pipeline_library_specific.apply_async((library_name,), expires=72*60*60,   # Must start within 72 hours
+                                                               queue="tasks_library_harmonization_worker")
+    return "Running cleaning pipeline for CMMC-REFRAME libraries"
 
 @app.route('/admin/update_api_cache', methods=['GET'])
 def update_api_cache():
