@@ -178,7 +178,10 @@ def gnpslibrary():
     try:
         for entry in sorted(os.listdir(cleaned_libraries_dir)):
             library_dict = {}
-            library_dict["libraryname"] = entry
+            if entry in ["REFRAME-NEGATIVE-LIBRARY", "REFRAME-POSITIVE-LIBRARY"]:   # To handle mismatch of file name and library name
+                library_dict["libraryname"] = "CMMC-" + entry
+            else:
+                library_dict["libraryname"] = entry
             library_dict["processingpipeline"] = 'GNPS Cleaning'
             library_dict["csvlink"] = f"/processed_gnps_library/{entry}.csv"
             library_dict["mgflink"] = f"/processed_gnps_library/{entry}.mgf"
