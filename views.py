@@ -346,6 +346,28 @@ def clean_cmmc_reframe():
                                                                queue="tasks_library_harmonization_worker")
     return "Running cleaning pipeline for CMMC-REFRAME libraries"
 
+@app.route('/admin/debug/clean_library', methods=['GET'])
+def clean_library():
+    """
+    This API call is used to clean a specific library in GNPS2
+    """
+    from tasks_library_harmonization_worker import run_cleaning_pipeline_library_specific
+
+    library_name = request.values.get("library_name")
+    if not library_name:
+        return "No library name provided", 400
+
+    # Ensure the library name actually exists
+    output_dir = Path("/output/")
+    library_file = output_dir / f"{library_name}.json"
+    if not library_file.exists():
+        return f"Library {library_name} does not exist in /output/", 404
+
+    print(f"Queueing cleaning pipeline for library: {library_name}", flush=True)
+    run_cleaning_pipeline_library_specific.apply_async((library_name,), expires=72*60*60,   # Must start within 72 hours
+                                                       queue="tasks_library_harmonization_worker")
+    return f"Running cleaning pipeline for {library_name}"
+
 @app.route('/admin/update_api_cache', methods=['GET'])
 def update_api_cache():
     """
