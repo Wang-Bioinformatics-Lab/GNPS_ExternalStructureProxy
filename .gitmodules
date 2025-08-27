@@ -3,9 +3,7 @@
 	url = https://github.com/Wang-Bioinformatics-Lab/gnps_ml_processing_workflow.git
 [submodule "pipelines/structureClassification"]
 	path = pipelines/structureClassification
-	url = https://github.com/YasinEl/structureClassification.git
+	url = https://github.com/Wang-Bioinformatics-Lab/structureClassification.git
 [submodule "pipelines/Library_Pulldown_Workflow"]
 	path = pipelines/Library_Pulldown_Workflow
 	url = https://github.com/Wang-Bioinformatics-Lab/Library_Pulldown_Workflow.git
-[submodule "structureClassification/"]
-	url = https://github.com/Wang-Bioinformatics-Lab/structureClassification.git
