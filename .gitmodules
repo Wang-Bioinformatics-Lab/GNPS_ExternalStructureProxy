@@ -7,3 +7,5 @@
 [submodule "pipelines/Library_Pulldown_Workflow"]
 	path = pipelines/Library_Pulldown_Workflow
 	url = https://github.com/Wang-Bioinformatics-Lab/Library_Pulldown_Workflow.git
+[submodule "structureClassification/"]
+	url = https://github.com/Wang-Bioinformatics-Lab/structureClassification.git
