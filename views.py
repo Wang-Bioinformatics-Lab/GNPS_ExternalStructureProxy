@@ -221,6 +221,10 @@ def json_download(library):
 def tar_download(library):
     return send_from_directory("/output", "{}.tar.gz".format(library))
 
+@app.route('/gnpslibrary/summary/<library>.json', methods=['GET'])
+def summary_download(library):
+    return send_from_directory("/output/library_summaries", "{}.json".format(library))
+
 
 # Preprocessed Data List
 # TODO: Create a endpoint for list of preprocessed data
