@@ -3,7 +3,7 @@ name: production-integration
 on: 
   push:
   schedule:
-   - cron:  '15 * * * *'
+   - cron:  '15 0 * * *'
 
 jobs:
   production-integration:
