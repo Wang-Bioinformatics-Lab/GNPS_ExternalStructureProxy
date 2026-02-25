@@ -28,8 +28,8 @@ def task_computeheartbeat():
 
     return "Up"
 
-# Here we need to update the library entry for GNPS the library entry
-@celery_instance.task(time_limit=60)
+# Here we need to update the library entry for GNPS the library entry, rate limit to 10 a minute
+@celery_instance.task(time_limit=60, rate_limit='10/m')
 def task_updategnpslibrary(accession):
     # We don't decide if we should, someone else decides, here we just do it
 

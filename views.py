@@ -69,10 +69,12 @@ def gnpsspectrum():
         # parse into datetime
         lastupdate = datetime.datetime.strptime(lastupdate, "%Y-%m-%d %H:%M:%S")
 
-        # if the last update was more than 5 day ago, we should update it
-        if (now - lastupdate).days > 30:
-        #if (now - lastupdate).days > 0:
-            task_updategnpslibrary.delay(gnpsid)
+        # if the last update was more than 30 day ago, we should update it
+        #if (now - lastupdate).days > 30:
+        #    task_updategnpslibrary.delay(gnpsid)
+        
+        # GNPS is unstable, never refresh anymore
+
     except:
         print("GNPS ID not found in database, trying to fetch it", gnpsid, file=sys.stderr, flush=True)
         # this likely means it is not in the database, we should try to grab it for next time
