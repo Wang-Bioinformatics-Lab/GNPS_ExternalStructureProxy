@@ -123,7 +123,7 @@ services:
         max-file: "3"
 
   externalstructureproxy-rabbitmq:
-    image: rabbitmq:latest
+    image: rabbitmq:3.13
     container_name: externalstructureproxy-rabbitmq
     networks:
       - default
