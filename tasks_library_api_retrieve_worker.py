@@ -15,6 +15,12 @@ from celery.signals import worker_ready
 
 celery_instance = Celery('tasks', backend='redis://externalstructureproxy-redis', broker='pyamqp://guest@externalstructureproxy-rabbitmq/', )
 
+# Keep publisher connections healthy so a stale/half-open socket fails fast instead of
+# hanging a request for ~20s (which showed up downstream as blank/NaN library metadata).
+celery_instance.conf.broker_heartbeat = 30            # exchange keepalives so a dead peer is detected
+celery_instance.conf.broker_connection_timeout = 2    # cap time to open a new connection
+celery_instance.conf.broker_transport_options = {'socket_timeout': 2, 'max_retries': 0}  # publish gives up fast, never blocks
+
 @worker_ready.connect
 def onstart(**k):
     print("On Start, doing nothing now", file=sys.stderr, flush=True)
