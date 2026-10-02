@@ -121,9 +121,9 @@
         </div>
         <div style="">
             <p>
-                Preprocessed data is data that has been filtered by our machine learning preperation and the matchms pipelines. Versioned, citable archives of the data are available for download at <a href="https://zenodo.org/records/11193898">Zenodo</a>.
+                These frozen snapshots were filtered by our machine learning preparation and matchms pipelines. Preprocessing has been permanently discontinued; these downloads will no longer be updated. Versioned, citable archives of the data are available for download at <a href="https://zenodo.org/records/11193898">Zenodo</a>.
                 <br>
-                See the current status of our processing pipelines <a href="https://external.gnps2.org/download_cleaning_report" target="_blank" rel="noopener noreferrer"> here. </a>
+                The main GNPS dataset was last updated on July 17, 2026. Individual library snapshots have the last-updated dates shown below (UTC).
             </p>
         </div>
 
@@ -136,6 +136,9 @@
                     </th>
                     <th>
                         Processing Pipeline
+                    </th>
+                    <th>
+                        Last Updated (UTC)
                     </th>
                     <th>
                         CSV Download
@@ -152,6 +155,7 @@
                     <tr v-for="processed_dict in preprocessed_list">
                         <td>{{processed_dict.libraryname}}</td>
                         <td>{{processed_dict.processingpipeline}}</td>
+                        <td>{{processed_dict.last_updated}}</td>
                         <td>
                             <download-linkout :url=processed_dict.csvlink :libraryname=processed_dict.libraryname></download-linkout>
                         </td>

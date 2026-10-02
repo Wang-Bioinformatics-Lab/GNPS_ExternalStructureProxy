@@ -19,13 +19,6 @@ services:
         - /home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:/home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:ro
         - /data/gscratch/:/data/gscratch:rw
   
-  externalstructureproxy-library_harmonization_worker:
-    volumes:
-        - ./output:/output:rw
-        - ./pipelines:/app/pipelines:rw
-        - /home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:/home/user/LabData/data/GNPS_Library_Provenance/GNPS_Library_Provenance:ro
-        - /data/gscratch/:/data/gscratch:rw
-  
   externalstructureproxy-api_request_worker:
     volumes:
         - ./output:/output:rw

@@ -1,7 +1,4 @@
 #!/bin/bash
-source activate rdkit && \
-    celery -A tasks_library_harmonization_worker worker \
-    --loglevel INFO \
-    -c 1 \
-    -Q tasks_library_harmonization_worker \
-    --max-tasks-per-child 4
+# This worker is retired because the preprocessed snapshots are frozen.
+echo "Preprocessed data is frozen; the cleaning worker is permanently disabled." >&2
+exit 1

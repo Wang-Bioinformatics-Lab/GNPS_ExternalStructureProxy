@@ -169,6 +169,7 @@ def gnpslibrary():
     library_dict["csvlink"] = "/processed_gnps_data/gnps_cleaned.csv"
     library_dict["mgflink"] = "/processed_gnps_data/gnps_cleaned.mgf"
     library_dict["jsonlink"] = "/processed_gnps_data/gnps_cleaned.json"
+    library_dict["last_updated"] = "2026-07-17"
     preprocessed_list.append(library_dict)
 
     # MatchMS Cleaning
@@ -178,6 +179,7 @@ def gnpslibrary():
     library_dict["csvlink"] = None
     library_dict["mgflink"] = "/processed_gnps_data/matchms.mgf"
     library_dict["jsonlink"] = None
+    library_dict["last_updated"] = "2026-07-17"
     preprocessed_list.append(library_dict)
 
     # Mulitplex All
@@ -193,6 +195,14 @@ def gnpslibrary():
             library_dict["csvlink"] = f"/processed_gnps_library/{entry}.csv"
             library_dict["mgflink"] = f"/processed_gnps_library/{entry}.mgf"
             library_dict["jsonlink"] = f"/processed_gnps_library/{entry}.json"
+            # Use downloadable data, never reports overwritten by failed attempts.
+            data_files = [Path(cleaned_libraries_dir) / entry / name for name in
+                          ("ALL_GNPS_cleaned_enriched.csv", "ALL_GNPS_cleaned.mgf", "ALL_GNPS_cleaned.json")]
+            timestamps = [path.stat().st_mtime for path in data_files if path.is_file()]
+            library_dict["last_updated"] = (
+                datetime.datetime.fromtimestamp(max(timestamps), datetime.timezone.utc).strftime("%Y-%m-%d")
+                if timestamps else "Unknown"
+            )
             preprocessed_list.append(library_dict)
     except Exception as e:
         print(f"Error listing cleaned libraries: {e}", flush=True)
@@ -285,102 +295,15 @@ def updatelibraries():
 def admincount():
     return str(LibraryEntry.select().count())
 
+# Retired cleaning endpoints must not enqueue work against the frozen snapshots.
 @app.route('/admin/run_pipelines', methods=['GET'])
-def run_pipelines():
-    """
-    This API call is used to test the matchms cleaning pipeline in GNPS2
-    """
-    from tasks_library_harmonization_worker import run_cleaning_pipeline
-    # result = run_cleaning_pipeline.delay()
-
-    print("Queueing harmonization pipeline", flush=True, file=sys.stderr)
-    result = run_cleaning_pipeline.apply_async(expires=48*60*60,
-                                               queue="tasks_library_harmonization_worker")
-    print("Running cleaning pipeline, result:", result, flush=True)
-    return "Running cleaning pipeline"
-
 @app.route('/admin/debug/run_multiplex_pipeline', methods=['GET'])
-def run_new_pipeline():
-    """
-    This API call is used to test the new pipeline in GNPS2
-    """
-    from tasks_library_harmonization_worker import run_cleaning_pipeline_library_specific
-
-    # Multiplex libraries
-    output_dir = Path("/output/")
-    all_pattern = re.compile(r"MULTIPLEX-SYNTHESIS-LIBRARY-ALL-PARTITION-\d+\.json$")
-    filtered_pattern = re.compile(r"MULTIPLEX-SYNTHESIS-LIBRARY-FILTERED-PARTITION-\d+\.json$")
-
-    for file in output_dir.iterdir():
-        if all_pattern.match(file.name):
-            library_name = file.stem  # remove .json
-            print(f"Queueing cleaning pipeline for library: {library_name}", flush=True)
-            run_cleaning_pipeline_library_specific.apply_async((library_name,), expires=48*60*60,
-                                                               queue="tasks_library_harmonization_worker")
-        elif filtered_pattern.match(file.name):
-            library_name = file.stem
-            print(f"Queueing cleaning pipeline for library: {library_name}", flush=True)
-            run_cleaning_pipeline_library_specific.apply_async((library_name,), expires=48*60*60,
-                                                               queue="tasks_library_harmonization_worker")
-    return "Running new pipeline for all multiplex libraries"
-
 @app.route('/admin/debug/run_propogated_pipeline', methods=['GET'])
 @app.route('/admin/debug/run_propagated_pipeline', methods=['GET'])
-def run_propagated_pipeline():
-    """
-    This API call is used to test the propagated libraries cleaning pipeline in GNPS2
-    """
-    from tasks_library_harmonization_worker import run_cleaning_pipeline_library_specific
-
-    output_dir = Path("/output/")
-    library_names = pd.read_csv("/app/library_names.tsv", names=['library', 'type'], dtype=str) # Named as a tsv, is a csv
-    library_names['json_name'] = library_names['library'].str.strip() + ".json"
-    name_type_mapping = library_names.set_index('json_name')['type'].to_dict()
-
-    for file in sorted(list(output_dir.glob("*.json"))):
-        if name_type_mapping.get(file.name) == "GNPS-PROPOGATED":
-            print(f"Processing file: {file.name}", flush=True)
-            library_name = file.stem
-            run_cleaning_pipeline_library_specific.apply_async((library_name,), expires=72*60*60,   # Must start within 72 hours
-                                                               queue="tasks_library_harmonization_worker")
-        else:
-            print(f"run_propagated_pipeline() library harmonization is not queuing file: {file.name} - not a GNPS-PROPOGATED library", flush=True)
-
-    return "Running propagated pipeline for all GNPS-PROPOGATED libraries"
-
 @app.route('/admin/debug/clean_cmmc_reframe', methods=['GET'])
-def clean_cmmc_reframe():
-    """
-    This API call is used to clean the CMMC-REFRAME libraries in GNPS2
-    """
-    from tasks_library_harmonization_worker import run_cleaning_pipeline_library_specific
-
-    for library_name in ['CMMC-REFRAME-NEGATIVE-LIBRARY', 'CMMC-REFRAME-POSITIVE-LIBRARY']:
-        run_cleaning_pipeline_library_specific.apply_async((library_name,), expires=72*60*60,   # Must start within 72 hours
-                                                               queue="tasks_library_harmonization_worker")
-    return "Running cleaning pipeline for CMMC-REFRAME libraries"
-
 @app.route('/admin/debug/clean_library', methods=['GET'])
-def clean_library():
-    """
-    This API call is used to clean a specific library in GNPS2
-    """
-    from tasks_library_harmonization_worker import run_cleaning_pipeline_library_specific
-
-    library_name = request.values.get("library_name")
-    if not library_name:
-        return "No library name provided", 400
-
-    # Ensure the library name actually exists
-    output_dir = Path("/output/")
-    library_file = output_dir / f"{library_name}.json"
-    if not library_file.exists():
-        return f"Library {library_name} does not exist in /output/", 404
-
-    print(f"Queueing cleaning pipeline for library: {library_name}", flush=True)
-    run_cleaning_pipeline_library_specific.apply_async((library_name,), expires=72*60*60,   # Must start within 72 hours
-                                                       queue="tasks_library_harmonization_worker")
-    return f"Running cleaning pipeline for {library_name}"
+def cleaning_disabled():
+    return "Preprocessed data is frozen; the cleaning workflow is permanently disabled.", 410
 
 @app.route('/admin/update_api_cache', methods=['GET'])
 def update_api_cache():

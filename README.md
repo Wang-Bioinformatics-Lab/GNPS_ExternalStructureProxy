@@ -42,3 +42,20 @@ This is accessible at
 2. Check the active ports (typically 5010, but can be seen in `docker ps`) and ensure they're forwarded if needed
 3. Web serivce is now live at [http://localhost:5010](http://localhost:5010)
 4. If starting for the first time, collect the GNPS libraries by visiting [http://localhost:5010](http://localhost:5010/admin/updatelibraries)
+
+## Frozen preprocessed data
+
+ML/matchms cleaning is permanently disabled. The main snapshot last completed on
+July 17, 2026; individual library dates are shown on the downloads page in UTC.
+Failed runs updated the HTML reports after that date, so report timestamps do not
+indicate data freshness. Existing downloads remain available.
+
+The cleaning schedule, post-download triggers, and worker service are removed.
+Legacy admin cleaning URLs return HTTP 410, and legacy task/direct utility calls
+fail without launching Nextflow or writing outputs.
+
+When deploying this change, stop and remove the old worker before rebuilding:
+`docker stop externalstructureproxy-library_harmonization_worker` followed by
+`docker rm externalstructureproxy-library_harmonization_worker`. Removing its
+Compose definition alone does not stop an existing container. Then rebuild and
+recreate the web and library generation services to load the disabled triggers.
